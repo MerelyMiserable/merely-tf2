@@ -13,6 +13,7 @@
 #else
 #include "c_tf_player.h"
 #endif
+#include <cdll_int.h>
 
 #define SLAP_PARTICLE_LEVEL_1	"flaming_slap"
 #define SLAP_SOUND_LEVEL_1		"Weapon_Slap.FireSmall"
@@ -222,6 +223,7 @@ void CTFSlap::OnPlayerKill( CTFPlayer *pVictim, const CTakeDamageInfo &info )
 	BaseClass::OnPlayerKill( pVictim, info );
 
 	m_nNumKills++;
+
 }
 #endif
 
