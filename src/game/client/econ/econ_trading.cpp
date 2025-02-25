@@ -319,7 +319,6 @@ protected:
 };
 GC_REG_JOB( GCSDK::CGCClient, CGCTrading_InitiateTradeRequest, "CGCTrading_InitiateTradeRequest", k_EMsgGCTrading_InitiateTradeRequest, GCSDK::k_EServerTypeGCClient );
 
-#ifdef _DEBUG
 #ifdef CLIENT_DLL
 CON_COMMAND( cl_trading_test, "Tests the trade ui notification." )
 {
@@ -330,7 +329,7 @@ CON_COMMAND( cl_trading_test, "Tests the trade ui notification." )
 	NotificationQueue_Add( new CTFTradeRequestNotification( steamID.ConvertToUint64(), steamID.ConvertToUint64(), "Biff" ) );
 }
 #endif
-#endif // _DEBUG
+
 
 /**
  * Remove notification that matches the trade request
@@ -636,10 +635,8 @@ CON_COMMAND( cl_trade_steamid, "Trade with a person by steam id" )
 	}
 }
 
-#ifdef _DEBUG
 CON_COMMAND( cl_trading_test_self_trade, "Test self-trading" )
 {
 	Trading_RequestTrade( Trading_GetLocalPlayerSteamID() );
 	sbTestingSelfTrade = true;
 }
-#endif
