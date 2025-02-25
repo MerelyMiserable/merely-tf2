@@ -678,10 +678,12 @@ static void OpenKeylessCase( bool bConfirmed, void *pContext )
 
 		GCClientSystem()->BSendMessage( msg );
 
+		const GameItemDefinition_t* crateitemdef = pCaseEconItemView->GetItemDefinition();
+
 		CCollectionCraftingPanel *pPanel = EconUI()->GetBackpackPanel()->GetCollectionCraftPanel();
 		if ( pPanel )
 		{
-			pPanel->SetWaitingForItem( kEconItemOrigin_FoundInCrate );
+			pPanel->SetWaitingForItem(kEconItemOrigin_FoundInCrate, static_cast<CTFItemDefinition*>(const_cast<GameItemDefinition_t*>(crateitemdef)));
 		}
 	}
 	delete pConfirmContext;
