@@ -69,6 +69,8 @@ public:
 
 	void				Clear();
 
+	virtual bool		AddEconItem(CEconItem* pItem, bool bUpdateAckFile, bool bWriteAckFile, bool bCheckForNewItems);
+
 	// Returns true if this inventory has been filled out by Steam.
 	bool				RetrievedInventoryFromSteam( void ) { return m_bGotItemsFromSteam; }
 	bool				IsWaitingForSteam( void ) { return (m_iPendingRequests > 0); }
@@ -141,7 +143,6 @@ protected:
 	// use the SteamRequestX functions in CInventoryManager.
 	void				RequestInventory( CSteamID pSteamID );
 	void				AddListener( GCSDK::ISharedObjectListener *pListener );
-	virtual bool		AddEconItem( CEconItem * pItem, bool bUpdateAckFile, bool bWriteAckFile, bool bCheckForNewItems );
 	virtual void		RemoveItem( itemid_t iItemID );
 	bool				FilloutItemFromEconItem( CEconItemView *pScriptItem, CEconItem *pEconItem );
 	void				SendInventoryUpdateEvent();
