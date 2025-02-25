@@ -18,39 +18,46 @@
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include <tier0/memdbgon.h>
+#include <c_tf_player.h>
 
 
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-CCollectionCraftingPanel::CCollectionCraftingPanel( vgui::Panel *parent, CItemModelPanelToolTip* pTooltip ) 
-	: BaseClass( parent, "CollectionCraftingPanel" )
-	, m_pKVItemPanels( NULL )
-	, m_pModelPanel( NULL )
-	, m_bWaitingForGCResponse( false )
-	, m_bEnvelopeReadyToSend( false )
-	, m_pMouseOverTooltip( pTooltip )
-	, m_bShowing( false )
-	, m_bShowImmediately( false )
+CCollectionCraftingPanel::CCollectionCraftingPanel(vgui::Panel* parent, CItemModelPanelToolTip* pTooltip)
+	: BaseClass(parent, "CollectionCraftingPanel")
+	, m_pKVItemPanels(NULL)
+	, m_pModelPanel(NULL)
+	, m_bWaitingForGCResponse(false)
+	, m_bEnvelopeReadyToSend(false)
+	, m_pMouseOverTooltip(pTooltip)
+	, m_bShowing(false)
+	, m_bShowImmediately(false)
 {
-	ListenForGameEvent( "gameui_hidden" );
+	ListenForGameEvent("gameui_hidden");
 
 	m_pSelectingItemModelPanel = NULL;
 
-	m_pTradeUpContainer = new EditablePanel( this, "TradeUpContainer" );
-	m_pInspectPanel = new CTFItemInspectionPanel( this, "NewItemPanel" );
-	m_pInspectPanel->SetOptions( true, true, false );
-	m_pCosmeticResultItemModelPanel = new CItemModelPanel( m_pInspectPanel, "CosmeticResultItemModelPanel" );
-	m_pStampPanel = new ImagePanel( this, "Stamp" );
-	m_pStampButton = new CExButton( this, "ApplyStampButton", "" );
+	m_pTradeUpContainer = new EditablePanel(this, "TradeUpContainer");
+	m_pInspectPanel = new CTFItemInspectionPanel(this, "NewItemPanel");
+	m_pInspectPanel->SetOptions(true, true, false);
 
-	EditablePanel* pPaperContainer = new EditablePanel( m_pTradeUpContainer, "PaperContainer" );
+	// Create the cosmetic result panel properly
+	m_pCosmeticResultItemModelPanel = NULL; // Initialize to NULL
+	// We'll find it during ApplySchemeSettings instead of creating it here
 
-	m_pOKButton = new CExButton( pPaperContainer, "OkButton", "" );
-	m_pNextItemButton = new CExButton( this, "NextItemButton", "" );
+	m_pStampPanel = new ImagePanel(this, "Stamp");
+	m_pStampButton = new CExButton(this, "ApplyStampButton", "");
 
-	m_pDrawingPanel = new CDrawingPanel( this, "drawingpanel" );
+	EditablePanel* pPaperContainer = new EditablePanel(m_pTradeUpContainer, "PaperContainer");
+
+	m_pOKButton = new CExButton(pPaperContainer, "OkButton", "");
+	m_pNextItemButton = new CExButton(this, "NextItemButton", "");
+
+	m_pDrawingPanel = new CDrawingPanel(this, "drawingpanel");
 }
+
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -101,28 +108,59 @@ void CCollectionCraftingPanel::CreateSelectionPanel()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CCollectionCraftingPanel::ApplySchemeSettings( vgui::IScheme *pScheme )
+void CCollectionCraftingPanel::ApplySchemeSettings(vgui::IScheme* pScheme)
 {
-	BaseClass::ApplySchemeSettings( pScheme );
+	BaseClass::ApplySchemeSettings(pScheme);
 
-	LoadControlSettings( GetResFile() );
+	LoadControlSettings(GetResFile());
 
-	m_pModelPanel = FindControl< CBaseModelPanel >( "ReturnModel" );
-	if ( m_pModelPanel )
+	m_pModelPanel = FindControl<CBaseModelPanel>("ReturnModel");
+	if (m_pModelPanel)
 	{
-		m_pModelPanel->SetLookAtCamera( false );
+		m_pModelPanel->SetLookAtCamera(false);
 	}
 
-	if ( m_pDrawingPanel )
+	if (m_pDrawingPanel)
 	{
-		m_pDrawingPanel->SetType( DRAWING_PANEL_TYPE_CRAFTING );
+		m_pDrawingPanel->SetType(DRAWING_PANEL_TYPE_CRAFTING);
 	}
 
-	m_pItemNamePanel = m_pInspectPanel->FindControl< CItemModelPanel >( "ItemName" );
-	Assert( m_pItemNamePanel );
+	// Find the item name panel in the inspect panel
+	m_pItemNamePanel = m_pInspectPanel ? m_pInspectPanel->FindControl<CItemModelPanel>("ItemName") : NULL;
 
-	// Hide the BG image.  The crafting panel has a BG already
-	m_pInspectPanel->SetControlVisible( "BGImage", false, true );
+	// Find the cosmetic result panel
+	if (!m_pCosmeticResultItemModelPanel)
+	{
+		// Try to find it in the inspect panel first
+		if (m_pInspectPanel)
+		{
+			m_pCosmeticResultItemModelPanel = m_pInspectPanel->FindControl<CItemModelPanel>("CosmeticResultItemModelPanel");
+		}
+
+		// If not found in inspect panel, try to find it directly in this panel
+		if (!m_pCosmeticResultItemModelPanel)
+		{
+			m_pCosmeticResultItemModelPanel = FindControl<CItemModelPanel>("CosmeticResultItemModelPanel");
+		}
+
+		// If still not found, create it
+		if (!m_pCosmeticResultItemModelPanel && m_pInspectPanel)
+		{
+			m_pCosmeticResultItemModelPanel = new CItemModelPanel(m_pInspectPanel, "CosmeticResultItemModelPanel");
+			m_pCosmeticResultItemModelPanel->SetVisible(true);
+			m_pCosmeticResultItemModelPanel->SetZPos(100); // Make sure it's on top
+		}
+	}
+
+	// Debug output
+	DevMsg("ApplySchemeSettings: m_pInspectPanel=%p, m_pItemNamePanel=%p, m_pCosmeticResultItemModelPanel=%p\n",
+		m_pInspectPanel, m_pItemNamePanel, m_pCosmeticResultItemModelPanel);
+
+	// Hide the BG image. The crafting panel has a BG already
+	if (m_pInspectPanel)
+	{
+		m_pInspectPanel->SetControlVisible("BGImage", false, true);
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -345,7 +383,6 @@ void CCollectionCraftingPanel::OnCommand( const char *command )
 		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_ItemRecieved" );	
 		wchar_t *pszLocalized = NULL;
 
-		// 
 		if ( m_eEconItemOrigin == kEconItemOrigin_FoundInCrate )
 		{
 			pszLocalized = g_pVGuiLocalize->Find( "#NewItemMethod_FoundInCrate" );
@@ -596,47 +633,58 @@ void CCollectionCraftingPanel::Show( CUtlVector< const CEconItemView* >& vecStar
 	m_eEconItemOrigin = kEconItemOrigin_TradeUp;
 }
 //-----------------------------------------------------------------------------
-void CCollectionCraftingPanel::SetWaitingForItem( eEconItemOrigin eOrigin )
+void CCollectionCraftingPanel::SetWaitingForItem(eEconItemOrigin eOrigin, const CTFItemDefinition* crateDef)
 {
+	pCrate = crateDef;
+
 	// Clear Panels
-	FOR_EACH_VEC( m_vecItemPanels, i )
+	FOR_EACH_VEC(m_vecItemPanels, i)
 	{
-		SetItem( NULL, i );
+		SetItem(NULL, i);
 	}
 
 	m_bShowing = true;
-	EconUI()->SetPreventClosure( true );
+	EconUI()->SetPreventClosure(true);
 
-	m_pInspectPanel->SetVisible( false );
-	EditablePanel* pDimmer = FindControl< EditablePanel >( "Dimmer" );
-	if ( pDimmer )
+	if (m_pInspectPanel)
 	{
-		pDimmer->SetAlpha( 0 );
+		m_pInspectPanel->SetVisible(false);
+		m_pInspectPanel->SetItemCopy(NULL);
 	}
 
-	EditablePanel* pBG = FindControl< EditablePanel >( "BG" );
-	if ( pBG )
+	if (m_pCosmeticResultItemModelPanel)
 	{
-		pBG->SetPos( pBG->GetXPos(), GetTall() );
+		m_pCosmeticResultItemModelPanel->SetItem(NULL);
 	}
 
-	m_pTradeUpContainer->SetVisible( false );
+	EditablePanel* pDimmer = FindControl<EditablePanel>("Dimmer");
+	if (pDimmer)
+	{
+		pDimmer->SetAlpha(0);
+	}
 
-	// reset
-	m_pInspectPanel->SetItemCopy( NULL );
-	m_pCosmeticResultItemModelPanel->SetItem( NULL );
-	
+	EditablePanel* pBG = FindControl<EditablePanel>("BG");
+	if (pBG)
+	{
+		pBG->SetPos(pBG->GetXPos(), GetTall());
+	}
+
+	if (m_pTradeUpContainer)
+	{
+		m_pTradeUpContainer->SetVisible(false);
+	}
+
 	// Do not use Derived SetVisible since it does extra animations we do not want here
-	BaseClass::SetVisible( true );
+	BaseClass::SetVisible(true);
 
 	m_eEconItemOrigin = eOrigin;
 
 	m_bWaitingForGCResponse = true;
 	m_nFoundItemID.Purge();
-	m_timerResponse.Start( 5.f );
-	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_WaitForItemsOnly" );	
-	return;
+	m_timerResponse.Start(5.f);
+	g_pClientMode->GetViewportAnimationController()->StartAnimationSequence(this, "CollectionCrafting_WaitForItemsOnly");
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -666,86 +714,143 @@ void CCollectionCraftingPanel::SetItem( const CEconItemView* pItem, int nIndex )
 void CCollectionCraftingPanel::OnThink()
 {
 	BaseClass::OnThink();
-	const float flSoonestAirDropTime = 2.f;
-
-	if ( m_timerResponse.HasStarted() )
+	// When waiting for response and haven't found an item yet
+	if (m_bWaitingForGCResponse && m_nFoundItemID.Count() == 0 && pCrate != nullptr)
 	{
-		// Elapsed is bad.  This means the item server didnt get back to us
-		if ( m_timerResponse.IsElapsed() )
-		{
-			m_nFoundItemID.Purge();
-			m_bWaitingForGCResponse = false;
-			m_timerResponse.Invalidate();
+		// Create a unique item ID
+		static const itemid_t LOCAL_ITEM_ID_START = 0x7FF00000;
+		static itemid_t s_ulNextItemID = 1;
+		itemid_t newItemID = LOCAL_ITEM_ID_START + s_ulNextItemID++;
 
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_HideWaiting" );	
-			g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_ShowFailure" );	
+		// Create a new item instance
+
+		// Add null check for pCrateSchemaDef
+		if (!pCrate)
+		{
+			Msg("Error: Crate schema definition is null\n");
+			return;
 		}
-		else if ( m_timerResponse.GetElapsedTime() > flSoonestAirDropTime || m_bShowImmediately )
+
+		const CEconItemCollectionDefinition* Collection = pCrate->GetItemCollectionDefinition();
+
+		// The rest of your original CEconItemView* declaration is a duplicate and can be removed
+		CEconItemView* pNewEconItemView = new CEconItemView();
+
+		if (Collection->m_iItemDefs.Count() > 0)
 		{
-			m_bShowImmediately = false;
-			// At 2 seconds we want to either show that we're still waiting, or show the item
-			if ( m_nFoundItemID.Count() > 0 )
+			// Get a random index instead of calling Random() directly
+			int randomIndex = rand() % Collection->m_iItemDefs.Count();
+			int randomitem = Collection->m_iItemDefs[randomIndex];
+
+			pNewEconItemView->Init(randomitem, 6, 100, true); // Use a known item index
+			pNewEconItemView->SetItemOriginOverride(kEconItemOrigin_FoundInCrate);
+			pNewEconItemView->SetItemID(newItemID);
+
+			// Add the item to our found items list
+
+
+			m_nFoundItemID.AddToTail(newItemID);
+
+			CEconItemView* pNewEconItemView = InventoryManager()->GetLocalInventory()->GetInventoryItemByItemID(m_nFoundItemID[0]);
+		}
+		else
+		{
+			Msg("Error: No items in collection\n");
+			delete pNewEconItemView; // Clean up the allocated object
+			return;
+		}
+
+		bool bIsInspectableWeapon = false;
+		bool bIsWeapon = false;
+		const CEconItemDefinition* pItemSchemaDef = GetItemSchema()->GetItemDefinition(pNewEconItemView->GetItemID());
+
+		// Add null check for pItemSchemaDef
+		if (!pItemSchemaDef)
+		{
+			Msg("Error: Item schema definition is null\n");
+			delete pNewEconItemView; // Clean up the allocated object
+			return;
+		}
+
+		// Check if the item is NOT a weapon by looking for specific non-weapon item classes
+		if (pItemSchemaDef->GetItemClass() && std::string(pItemSchemaDef->GetItemClass()).find("weapon") != std::string::npos || std::string(pItemSchemaDef->GetItemClass()).find("tool") != std::string::npos || std::string(pItemSchemaDef->GetItemClass()).find("tf_wearable") != std::string::npos) {
+
+			bIsInspectableWeapon = false;
+			Msg("Found non-weapon item: %s\n", pItemSchemaDef->GetItemClass());
+		}
+		else {
+			bIsInspectableWeapon = true;
+			Msg("Found weapon or Tool.\n");
+		}
+
+		// Check if the item is NOT a weapon by looking for specific non-weapon item classes
+		if (pItemSchemaDef->GetItemClass() && std::string(pItemSchemaDef->GetItemClass()).find("weapon") != std::string::npos) {
+
+			bIsWeapon = false;
+			Msg("Found non-weapon item: %s\n", pItemSchemaDef->GetItemClass());
+		}
+		else {
+			bIsWeapon = true;
+			Msg("Found weapon or Tool.\n");
+		}
+
+		// Add a 0.5-1% chance of unusual quality
+
+		// Make sure the panels are visible and ready
+		if (m_pInspectPanel)
+		{
+			m_pInspectPanel->SetVisible(true);
+
+			if (bIsInspectableWeapon)
 			{
-				OnCommand( "itemget" );
-				m_timerResponse.Invalidate();
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_HideWaiting" );	
 
-				// Setup the item in the panel
-				CEconItemView* pNewEconItemView = InventoryManager()->GetLocalInventory()->GetInventoryItemByItemID( m_nFoundItemID[0] );
-				if ( pNewEconItemView )
-				{
-					static CSchemaAttributeDefHandle pAttrib_WeaponAllowInspect( "weapon_allow_inspect" );
-					if ( pNewEconItemView->FindAttribute( pAttrib_WeaponAllowInspect ) )
-					{
-						m_pInspectPanel->SetItemCopy( pNewEconItemView );
-						m_pInspectPanel->SetSpecialAttributesOnly( true );
-						m_pCosmeticResultItemModelPanel->SetItem( NULL );
-					}
-					else //( IsMiscSlot( pNewEconItemView->GetStaticData()->GetDefaultLoadoutSlot() ) )
-					{
-						m_pCosmeticResultItemModelPanel->SetItem( pNewEconItemView );
-						m_pCosmeticResultItemModelPanel->SetNameOnly( false );
-						m_pInspectPanel->SetSpecialAttributesOnly( true );
-						m_pInspectPanel->SetItemCopy( NULL );
-					}
+                    float chance = RandomFloat(0.0f, 1.0f);
+                    if (chance <= 0.1f && bIsWeapon) {
+                        pNewEconItemView->SetItemQuality(11);
+                    }
 
-					// Acknowledge the item
-					InventoryManager()->AcknowledgeItem( pNewEconItemView, true );
-					InventoryManager()->SaveAckFile();
-
-					if ( m_pItemNamePanel )
-					{
-						m_pItemNamePanel->SetItem( pNewEconItemView );
-					}
-				}
-
-				m_bWaitingForGCResponse = false;
-
-				// only show if more then 1 item in queue
-				m_pNextItemButton->SetVisible( m_nFoundItemID.Count() > 1 );
+					m_pInspectPanel->SetItemCopy(pNewEconItemView);
+					m_pInspectPanel->SetSpecialAttributesOnly(true);  // This is set to true for all items
+					m_pCosmeticResultItemModelPanel->SetItem(NULL);
 			}
 			else
 			{
-				// Say that we're waiting
-				g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_ShowWaiting" );	
+					float chance = RandomFloat(0.0f, 1.0f);
+					if (chance >= 0.005f && chance <= 0.01f) {
+						pNewEconItemView->SetItemQuality(5);
+					}
+
+					m_pCosmeticResultItemModelPanel->SetItem(pNewEconItemView);
+					m_pCosmeticResultItemModelPanel->SetNameOnly(false);
+					m_pInspectPanel->SetSpecialAttributesOnly(true);
+					m_pInspectPanel->SetItemCopy(NULL);
 			}
+
+			// Set dialog variable for result string
+			wchar_t* pszLocalized = g_pVGuiLocalize->Find("#NewItemMethod_FoundInCrate");
+			m_pInspectPanel->SetDialogVariable("resultstring", pszLocalized);
+		}
+
+		if (m_pItemNamePanel)
+		{
+			m_pItemNamePanel->SetItem(pNewEconItemView);
+			m_pItemNamePanel->SetVisible(true);
+		}
+
+		// Trigger the animation sequence
+		OnCommand("itemget");
+
+		// Hide the next item button
+		if (m_pNextItemButton)
+		{
+			m_pNextItemButton->SetVisible(false);
 		}
 	}
-	
-	bool bEnvelopReadyToSendThisFrame = true;
-	// They need to have drawn a little bit
-	bEnvelopReadyToSendThisFrame &= m_pDrawingPanel->GetLines( GetLocalPlayerIndex() ).Count() > 10;
-	// And placed a stamp
-	bEnvelopReadyToSendThisFrame &= m_pStampPanel->IsVisible();
-
-	// Show the send button?
-	if ( bEnvelopReadyToSendThisFrame && !m_bEnvelopeReadyToSend )
-	{
-		g_pClientMode->GetViewportAnimationController()->StartAnimationSequence( this, "CollectionCrafting_ShowSendButton" );	
-	}
-
-	m_bEnvelopeReadyToSend = bEnvelopReadyToSendThisFrame;
 }
+
+
+
+
 
 //* **************************************************************************************************************************************
 // Stat Clock Crafting

@@ -102,7 +102,7 @@ public:
 	virtual void SOCreated( const CSteamID & steamIDOwner, const GCSDK::CSharedObject *pObject, GCSDK::ESOCacheEvent eEvent ) OVERRIDE;
 
 	virtual void Show( CUtlVector< const CEconItemView* >& vecStartingItems );
-	void SetWaitingForItem( eEconItemOrigin eOrigin );
+	void SetWaitingForItem(eEconItemOrigin eOrigin, const CTFItemDefinition* itemDef);
 
 	virtual int GetInputItemCount() { return COLLECTION_CRAFTING_ITEM_COUNT; }
 	virtual int GetOutputItemCount() { return 0; }	// For Ui Display Purposes
@@ -153,6 +153,7 @@ protected:
 
 	CDrawingPanel *m_pDrawingPanel;
 	CTFItemInspectionPanel *m_pInspectPanel;
+	const CTFItemDefinition* pCrate;
 	CItemModelPanel* m_pCosmeticResultItemModelPanel;
 	CItemModelPanel* m_pItemNamePanel;
 

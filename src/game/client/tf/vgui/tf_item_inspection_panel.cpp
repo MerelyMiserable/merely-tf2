@@ -104,7 +104,7 @@ public:
 GC_REG_JOB( GCSDK::CGCClient, CGCClient2GCEconPreviewDataBlockResponse, "CGCClient2GCEconPreviewDataBlockResponse", k_EMsgGC_Client2GCEconPreviewDataBlockResponse, GCSDK::k_EServerTypeGCClient );
 
 // ********************************************************************************************************************************
-CON_COMMAND_F( tf_econ_item_preview, "Preview an economy item", FCVAR_DONTRECORD | FCVAR_HIDDEN | FCVAR_CLIENTCMD_CAN_EXECUTE )
+CON_COMMAND_F( tf_econ_item_preview, "Preview an economy item", FCVAR_CLIENTCMD_CAN_EXECUTE )
 {
 	if ( args.ArgC() < 2 )
 		return;
