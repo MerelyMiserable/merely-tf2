@@ -1,0 +1,8 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define BEGIN_PREDICTION_DATA(className) datamap_t className::m_PredMap = { 0, 0, #className, &BaseClass::m_PredMap }; datamap_t *className::GetPredDescMap( void ) { return &m_PredMap; } BEGIN_PREDICTION_DATA_GUTS( className )
+#define BEGIN_PREDICTION_DATA(className) template <> inline datamap_t *PredMapInit<className>( className * ) { if ( 0 ) { typedef className classNameTypedef; typedescription_t predDesc[] = { { FIELD_VOID,0, {0,0},0,0,0,0,0,0},
+#define BEGIN_PREDICTION_DATA(className)
+#define LINK_ENTITY_TO_CLASS(localName, className) static C_BaseEntity *C##className##Factory( void ) { return static_cast< C_BaseEntity * >( new className ); }; class C##localName##Foo { public: C##localName##Foo( void ) { GetClassMap().Add( #localName, #className, sizeof( className ), &C##className##Factory ); } }; static C##localName##Foo g_C##localName##Foo;
+#define LINK_ENTITY_TO_CLASS(mapClassName, DLLClassName) static CEntityFactory<DLLClassName> mapClassName( #mapClassName );
