@@ -2645,7 +2645,6 @@ void CEconItemDefinition::BInitVisualBlockFromKV( KeyValues *pKVItem, CUtlVector
 				else if ( !Q_stricmp( pszEntry, "material_override" ) )
 				{
 					pVisData->pszMaterialOverride = pKVEntry->GetString();
-					Msg(pKVEntry->GetString());
 				}
 				else if ( !Q_strnicmp( pszEntry, "sound_", 6 ) )				// intentionally comparing prefixes
 				{

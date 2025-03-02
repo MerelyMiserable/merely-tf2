@@ -2613,7 +2613,7 @@ public:
 	const BaseItemDefinitionMap_t &GetBaseItemDefinitionMap() const { return m_mapBaseItems; }
 
 	typedef CUtlMap<int, CEconItemDefinition*, int>	CustomItemDefinitionMap_t;
-	const CustomItemDefinitionMap_t& GetCustomItemDefinitionMap() const { return m_mapCustomItems; }
+	CustomItemDefinitionMap_t& GetCustomItemDefinitionMap() { return m_mapCustomItems; }
 
 	typedef CUtlDict<CEconLootListDefinition *>	LootListDefinitionMap_t;
 	const LootListDefinitionMap_t &GetLootLists() const { return m_dictLootLists; }
@@ -2812,6 +2812,9 @@ public:
 
 	bool BInsertLootlist( const char *pListName, KeyValues *pKVLootList, CUtlVector<CUtlString> *pVecErrors );
 
+	// List of all solo items, is a sublist of mapItems
+	CustomItemDefinitionMap_t								m_mapCustomItems;
+
 protected:
 	virtual void Reset( void );
 
@@ -2930,8 +2933,6 @@ private:
 	// List of all base items, is a sublist of mapItems
 	BaseItemDefinitionMap_t								m_mapBaseItems;
 
-	// List of all solo items, is a sublist of mapItems
-	CustomItemDefinitionMap_t								m_mapCustomItems;
 
 #if defined(CLIENT_DLL) || defined(GAME_DLL)
 	// What is the default item definition we'll return in the client code if we can't find the correct one?

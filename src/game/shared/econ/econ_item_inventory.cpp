@@ -2398,9 +2398,25 @@ CON_COMMAND_F( item_generate_all_descriptions, "Generate full item descriptions 
 	Msg("Done.\n");
 }
 
+// Add the con_command definition to reload the item schema
+CON_COMMAND_F(cl_reload_item_schema, "Reloads the item schema from the items_game.txt file.", FCVAR_CLIENTCMD_CAN_EXECUTE)
+{
+	Msg("Reloading item schema...\n");
+
+	// First, create a new CEconItemSystem object if it doesn't exist yet
+	CEconItemSystem* pItemSystem = ItemSystem();
+
+	// If the item system is already initialized, call the Init function again to reload the schema
+	pItemSystem->Shutdown(); // Make sure to clean up the old schema
+	pItemSystem->Init();     // Re-initialize the schema by re-parsing the items_game.txt file
+
+	Msg("Item schema reloaded successfully.\n");
+}
+
 #endif // CLIENT_DLL
 
-#ifdef GAME_DLL
+#ifdef SERVER_DLL
+
 // Add the con_command definition to reload the item schema
 CON_COMMAND_F(sv_reload_item_schema, "Reloads the item schema from the items_game.txt file.", FCVAR_CHEAT)
 {
@@ -2415,4 +2431,5 @@ CON_COMMAND_F(sv_reload_item_schema, "Reloads the item schema from the items_gam
 
 	Msg("Item schema reloaded successfully.\n");
 }
-#endif // GAME_DLL
+
+#endif // SERVER_DLL
