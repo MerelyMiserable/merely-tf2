@@ -3499,11 +3499,13 @@ REGISTER_SCRIPT_CONST_TABLE( Server )
 
 				if ( scriptLanguage == SL_SQUIRREL )
 				{
-					g_pScriptVM->Run( g_Script_vscript_server );
+					g_pScriptVM->Run( "g_Script_vscript_server");
 				}
 				g_VScriptGameEventListener.Init();
 
+				VScriptRunScript( "tf_init", false );
 				VScriptRunScript( "mapspawn", false );
+				VScriptRunScript( "tf_postinit", false );
 
 				if ( script_connect_debugger_on_mapspawn.GetBool() )
 				{
