@@ -1079,8 +1079,17 @@ int CBackpackPanel::GetNumPages( void )
 // Purpose: 
 //-----------------------------------------------------------------------------
 
+bool inventoryloaded = false;
+
 void CBackpackPanel::AssignItemToPanel( CItemModelPanel *pPanel, int iIndex )
 {
+	if (!inventoryloaded)
+	{
+		EconUI()->GetBackpackPanel()->GetCollectionCraftPanel()->LoadDroppedItems();
+		inventoryloaded = true;
+	}
+
+
 	tmZone( TELEMETRY_LEVEL0, TMZF_NONE, "%s", __FUNCTION__ );
 
 	static int iItemBackpackPos = 0;
@@ -1108,6 +1117,7 @@ void CBackpackPanel::AssignItemToPanel( CItemModelPanel *pPanel, int iIndex )
 		// Create a combined map of both custom and base items
 		// Use the same less func type that the original maps use
 		CUtlMap<int, CEconItemDefinition*> combinedMap(DefLessFunc(int));
+
 
 		// Copy items from CustommapItems to combinedMap
 		for (int it = CustommapItems.FirstInorder(); it != CustommapItems.InvalidIndex(); it = CustommapItems.NextInorder(it))

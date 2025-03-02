@@ -175,6 +175,8 @@ void CBaseToolUsageDialog::OnCommand( const char *command )
 		// Call before Apply() in case it creates new dialogs that wants to handle prevention
 		EconUI()->SetPreventClosure( false );
 		Apply();
+
+
 	}
 	else // "cancel"
 	{
