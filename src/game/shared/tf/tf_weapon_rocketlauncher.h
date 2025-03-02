@@ -58,6 +58,7 @@ public:
 	virtual void	Misfire( void );
 	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer );
 	virtual void	ItemPostFrame( void );
+	void ItemBusyFrame(void);
 	virtual bool	DefaultReload( int iClipSize1, int iClipSize2, int iActivity );
 
 	virtual int		GetWeaponProjectileType( void ) const OVERRIDE;
@@ -87,6 +88,43 @@ private:
 #endif
 
 	CTFRocketLauncher( const CTFRocketLauncher & ) {}
+
+public:
+	// Mortar launcher functionality
+	void RegisterMortarRocket(CBaseEntity* pRocket, CTFPlayer* pOwner);
+	void RedirectMortarRockets(CTFPlayer* pOwner);
+	void UpdateMortarRockets();
+	void PurgeMortarRockets(CTFPlayer* pOwner = NULL);
+
+	struct MortarRocketList_t
+	{
+		CCopyableUtlVector<CHandle<CBaseEntity>> m_vecRockets;
+
+		// Default constructor
+		MortarRocketList_t() = default;
+
+		// Copy constructor
+		MortarRocketList_t(const MortarRocketList_t& other) = default;
+
+		// Assignment operator
+		MortarRocketList_t& operator=(const MortarRocketList_t& other) = default;
+	};
+
+	struct MortarRocketKeyLess
+	{
+		bool operator()(const CHandle<CTFPlayer>& lhs, const CHandle<CTFPlayer>& rhs) const
+		{
+			// Handle null cases
+			if (!lhs.Get() && rhs.Get()) return true;
+			if (!lhs.Get() || !rhs.Get()) return false;
+
+			// Compare by entity index
+			return lhs.GetEntryIndex() < rhs.GetEntryIndex();
+		}
+	};
+
+	// And define your map using this comparator:
+	CUtlMap<CHandle<CTFPlayer>, MortarRocketList_t, unsigned short, MortarRocketKeyLess> m_MortarRockets;
 };
 
 // ------------------------------------------------------------------------------------------------------------------------
@@ -133,7 +171,7 @@ public:
 class CTFRocketLauncher_Mortar : public CTFRocketLauncher
 {
 public:
-	DECLARE_CLASS( CTFRocketLauncher_Mortar, CTFRocketLauncher );
+	DECLARE_CLASS(CTFRocketLauncher_Mortar, CTFRocketLauncher);
 	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
@@ -144,16 +182,16 @@ public:
 
 	//CTFRocketLauncher_Mortar();
 
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_ROCKETLAUNCHER; }
+	virtual int		GetWeaponID(void) const { return TF_WEAPON_ROCKETLAUNCHER; }
 
-	virtual CBaseEntity *FireProjectile( CTFPlayer *pPlayer );
+	virtual CBaseEntity* FireProjectile(CTFPlayer* pPlayer);
 
-	virtual void	SecondaryAttack( void );
-	virtual void	ItemPostFrame( void );
-	virtual void	ItemBusyFrame( void );
+	virtual void	SecondaryAttack(void);
+	virtual void	ItemPostFrame(void);
+	virtual void	ItemBusyFrame(void);
 
 private:
-	
+
 	void			RedirectRockets();
 
 #ifdef GAME_DLL
@@ -166,8 +204,8 @@ private:
 class CTFCrossbow : public CTFRocketLauncher
 {
 public:
-	DECLARE_CLASS( CTFCrossbow, CTFRocketLauncher );
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_CLASS(CTFCrossbow, CTFRocketLauncher);
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	// Server specific.
@@ -175,25 +213,25 @@ public:
 	DECLARE_DATADESC();
 #endif
 
-	virtual bool	Holster( CBaseCombatWeapon *pSwitchingTo ) OVERRIDE;
-	virtual int		GetWeaponID( void ) const			{ return TF_WEAPON_CROSSBOW; }
-	virtual void	SecondaryAttack( void );
-	virtual float	GetProjectileSpeed( void );
-	virtual float	GetProjectileGravity( void );
-	virtual bool	IsViewModelFlipped( void );
+	virtual bool	Holster(CBaseCombatWeapon* pSwitchingTo) OVERRIDE;
+	virtual int		GetWeaponID(void) const { return TF_WEAPON_CROSSBOW; }
+	virtual void	SecondaryAttack(void);
+	virtual float	GetProjectileSpeed(void);
+	virtual float	GetProjectileGravity(void);
+	virtual bool	IsViewModelFlipped(void);
 
-	virtual void	ItemPostFrame( void );
-	virtual void	ModifyProjectile( CBaseEntity* pProj );
-	virtual void	WeaponRegenerate( void );
+	virtual void	ItemPostFrame(void);
+	virtual void	ModifyProjectile(CBaseEntity* pProj);
+	virtual void	WeaponRegenerate(void);
 
-	float				GetProgress( void );
-	const char*			GetEffectLabelText( void )					{ return "#TF_BOLT"; }
+	float				GetProgress(void);
+	const char* GetEffectLabelText(void) { return "#TF_BOLT"; }
 
-	CNetworkVar( float, m_flRegenerateDuration );
-	CNetworkVar( float, m_flLastUsedTimestamp );
+	CNetworkVar(float, m_flRegenerateDuration);
+	CNetworkVar(float, m_flLastUsedTimestamp);
 
 private:
 	bool m_bMilkNextAttack;
 };
 
-#endif // TF_WEAPON_ROCKETLAUNCHER_H
+#endif // TF_WEAPON_ROCKETLAUNCHER_H 

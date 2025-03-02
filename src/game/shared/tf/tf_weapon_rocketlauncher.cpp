@@ -31,9 +31,9 @@
 //
 // Weapon Rocket Launcher tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFRocketLauncher, DT_WeaponRocketLauncher )
+IMPLEMENT_NETWORKCLASS_ALIASED(TFRocketLauncher, DT_WeaponRocketLauncher)
 
-BEGIN_NETWORK_TABLE( CTFRocketLauncher, DT_WeaponRocketLauncher )
+BEGIN_NETWORK_TABLE(CTFRocketLauncher, DT_WeaponRocketLauncher)
 #ifndef CLIENT_DLL
 //	SendPropInt( SENDINFO( m_iSecondaryShotsFired ) ),
 #else
@@ -41,15 +41,15 @@ BEGIN_NETWORK_TABLE( CTFRocketLauncher, DT_WeaponRocketLauncher )
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFRocketLauncher )
+BEGIN_PREDICTION_DATA(CTFRocketLauncher)
 END_PREDICTION_DATA()
 
-LINK_ENTITY_TO_CLASS( tf_weapon_rocketlauncher, CTFRocketLauncher );
-PRECACHE_WEAPON_REGISTER( tf_weapon_rocketlauncher );
+LINK_ENTITY_TO_CLASS(tf_weapon_rocketlauncher, CTFRocketLauncher);
+PRECACHE_WEAPON_REGISTER(tf_weapon_rocketlauncher);
 
 // Server specific.
 #ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFRocketLauncher )
+BEGIN_DATADESC(CTFRocketLauncher)
 END_DATADESC()
 #endif
 
@@ -57,29 +57,29 @@ END_DATADESC()
 //
 // Direct Hit tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFRocketLauncher_DirectHit, DT_WeaponRocketLauncher_DirectHit )
+IMPLEMENT_NETWORKCLASS_ALIASED(TFRocketLauncher_DirectHit, DT_WeaponRocketLauncher_DirectHit)
 
-BEGIN_NETWORK_TABLE( CTFRocketLauncher_DirectHit, DT_WeaponRocketLauncher_DirectHit )
+BEGIN_NETWORK_TABLE(CTFRocketLauncher_DirectHit, DT_WeaponRocketLauncher_DirectHit)
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFRocketLauncher_DirectHit )
+BEGIN_PREDICTION_DATA(CTFRocketLauncher_DirectHit)
 END_PREDICTION_DATA()
 
-LINK_ENTITY_TO_CLASS( tf_weapon_rocketlauncher_directhit, CTFRocketLauncher_DirectHit );
-PRECACHE_WEAPON_REGISTER( tf_weapon_rocketlauncher_directhit );
+LINK_ENTITY_TO_CLASS(tf_weapon_rocketlauncher_directhit, CTFRocketLauncher_DirectHit);
+PRECACHE_WEAPON_REGISTER(tf_weapon_rocketlauncher_directhit);
 
 // Server specific.
 #ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFRocketLauncher_DirectHit )
+BEGIN_DATADESC(CTFRocketLauncher_DirectHit)
 END_DATADESC()
 #endif
 
 //=============================================================================
 //
 // AIRSTRIKE BEGIN
-IMPLEMENT_NETWORKCLASS_ALIASED( TFRocketLauncher_AirStrike, DT_WeaponRocketLauncher_AirStrike )
+IMPLEMENT_NETWORKCLASS_ALIASED(TFRocketLauncher_AirStrike, DT_WeaponRocketLauncher_AirStrike)
 
-BEGIN_NETWORK_TABLE( CTFRocketLauncher_AirStrike, DT_WeaponRocketLauncher_AirStrike )
+BEGIN_NETWORK_TABLE(CTFRocketLauncher_AirStrike, DT_WeaponRocketLauncher_AirStrike)
 #ifndef CLIENT_DLL
 //	SendPropInt( SENDINFO( m_iRocketKills ) ),
 #else
@@ -87,15 +87,15 @@ BEGIN_NETWORK_TABLE( CTFRocketLauncher_AirStrike, DT_WeaponRocketLauncher_AirStr
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFRocketLauncher_AirStrike )
+BEGIN_PREDICTION_DATA(CTFRocketLauncher_AirStrike)
 END_PREDICTION_DATA()
 
-LINK_ENTITY_TO_CLASS( tf_weapon_rocketlauncher_airstrike, CTFRocketLauncher_AirStrike );
-PRECACHE_WEAPON_REGISTER( tf_weapon_rocketlauncher_airstrike );
+LINK_ENTITY_TO_CLASS(tf_weapon_rocketlauncher_airstrike, CTFRocketLauncher_AirStrike);
+PRECACHE_WEAPON_REGISTER(tf_weapon_rocketlauncher_airstrike);
 
 // Server specific.
 #ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFRocketLauncher_AirStrike )
+BEGIN_DATADESC(CTFRocketLauncher_AirStrike)
 END_DATADESC()
 #endif
 // AIRSTRIKE END
@@ -106,18 +106,18 @@ END_DATADESC()
 //
 // Mortar tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFRocketLauncher_Mortar, DT_WeaponRocketLauncher_Mortar )
+IMPLEMENT_NETWORKCLASS_ALIASED(TFRocketLauncher_Mortar, DT_WeaponRocketLauncher_Mortar)
 
-BEGIN_NETWORK_TABLE( CTFRocketLauncher_Mortar, DT_WeaponRocketLauncher_Mortar )
+BEGIN_NETWORK_TABLE(CTFRocketLauncher_Mortar, DT_WeaponRocketLauncher_Mortar)
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFRocketLauncher_Mortar )
+BEGIN_PREDICTION_DATA(CTFRocketLauncher_Mortar)
 END_PREDICTION_DATA()
 
 
 // Server specific.
 #ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFRocketLauncher_Mortar )
+BEGIN_DATADESC(CTFRocketLauncher_Mortar)
 END_DATADESC()
 #endif
 
@@ -125,27 +125,27 @@ END_DATADESC()
 //
 // Crossbow tables.
 //
-IMPLEMENT_NETWORKCLASS_ALIASED( TFCrossbow, DT_Crossbow )
+IMPLEMENT_NETWORKCLASS_ALIASED(TFCrossbow, DT_Crossbow)
 
-BEGIN_NETWORK_TABLE( CTFCrossbow, DT_Crossbow )
+BEGIN_NETWORK_TABLE(CTFCrossbow, DT_Crossbow)
 #ifdef CLIENT_DLL
-	RecvPropFloat( RECVINFO( m_flRegenerateDuration ) ),
-	RecvPropFloat( RECVINFO( m_flLastUsedTimestamp ) ),
+RecvPropFloat(RECVINFO(m_flRegenerateDuration)),
+RecvPropFloat(RECVINFO(m_flLastUsedTimestamp)),
 #else
-	SendPropFloat( SENDINFO( m_flRegenerateDuration ), 0, SPROP_NOSCALE ),
-	SendPropFloat( SENDINFO( m_flLastUsedTimestamp ), 0, SPROP_NOSCALE ),
+SendPropFloat(SENDINFO(m_flRegenerateDuration), 0, SPROP_NOSCALE),
+SendPropFloat(SENDINFO(m_flLastUsedTimestamp), 0, SPROP_NOSCALE),
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFCrossbow )
+BEGIN_PREDICTION_DATA(CTFCrossbow)
 END_PREDICTION_DATA()
 
-LINK_ENTITY_TO_CLASS( tf_weapon_crossbow, CTFCrossbow );
-PRECACHE_WEAPON_REGISTER( tf_weapon_crossbow );
+LINK_ENTITY_TO_CLASS(tf_weapon_crossbow, CTFCrossbow);
+PRECACHE_WEAPON_REGISTER(tf_weapon_crossbow);
 
 // Server specific.
 #ifndef CLIENT_DLL
-BEGIN_DATADESC( CTFCrossbow )
+BEGIN_DATADESC(CTFCrossbow)
 END_DATADESC()
 #endif
 
@@ -164,12 +164,32 @@ CTFRocketLauncher::CTFRocketLauncher()
 #endif //GAME_DLL
 }
 
+CTFRocketLauncher::~CTFRocketLauncher()
+{
+	// Cleanup code if needed
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  :  - 
 //-----------------------------------------------------------------------------
-CTFRocketLauncher::~CTFRocketLauncher()
+bool HasMortarAttribute(CTFWeaponBase* pWeapon)
 {
+	if (!pWeapon) {
+		return false;
+	}
+
+	int isPhysGun = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER(pWeapon, isPhysGun, HasMortarAttribute);
+	if (isPhysGun == 1)
+	{
+		//DevMsg("RL has Mortar attribute\n");
+		return true;
+	}
+	else {
+		//DevMsg("RL does not have Mortar attribute\n");
+		return false;
+	}
 }
 
 #ifndef CLIENT_DLL
@@ -334,6 +354,13 @@ CBaseEntity *CTFRocketLauncher::FireProjectile( CTFPlayer *pPlayer )
 		PlayUpgradedShootSound( "Weapon_Upgrade.DamageBonus" );
 	}
 
+#ifdef GAME_DLL
+	// If we have the mortar attribute, register it with gamerules
+	if (pRocket && pPlayer && HasMortarAttribute(this))
+	{
+		RegisterMortarRocket(pRocket, pPlayer);
+	}
+#endif
 
 	return pRocket;
 }
@@ -350,6 +377,19 @@ void CTFRocketLauncher::ItemPostFrame( void )
 	BaseClass::ItemPostFrame();
 
 #ifdef GAME_DLL
+	// If we have the mortar attribute and the player is pressing secondary fire
+	if (HasMortarAttribute(this))
+	{
+		CTFPlayer* pOwner = ToTFPlayer(GetOwnerEntity());
+		if (pOwner && (pOwner->m_nButtons & IN_ATTACK2))
+		{
+			// Let gamerules handle the redirection
+			RedirectMortarRockets(pOwner);
+		}
+	}
+#endif
+
+#ifdef GAME_DLL
 
 	if ( m_flShowReloadHintAt && m_flShowReloadHintAt < gpGlobals->curtime )
 	{
@@ -361,6 +401,134 @@ void CTFRocketLauncher::ItemPostFrame( void )
 	}
 #endif
 }
+
+void CTFRocketLauncher::ItemBusyFrame(void)
+{
+	// Base behavior first
+	BaseClass::ItemBusyFrame();
+
+#ifdef GAME_DLL
+	// If we have the mortar attribute and the player is pressing secondary fire
+	if (HasMortarAttribute(this))
+	{
+		CTFPlayer* pOwner = ToTFPlayer(GetOwnerEntity());
+		if (pOwner && (pOwner->m_nButtons & IN_ATTACK2))
+		{
+			// Let gamerules handle the redirection
+			RedirectMortarRockets(pOwner);
+		}
+	}
+#endif
+}
+
+#ifdef GAME_DLL
+//-----------------------------------------------------------------------------
+// Purpose: Register a rocket as a mortar-controlled rocket
+//-----------------------------------------------------------------------------
+void CTFRocketLauncher::RegisterMortarRocket(CBaseEntity* pRocket, CTFPlayer* pOwner)
+{
+	// Safety checks
+	if (!pRocket || !pOwner || !pOwner->IsAlive())
+		return;
+
+	// Use a handle consistently
+	CHandle<CTFPlayer> hOwner(pOwner);
+
+	// Find the player's entry in the map
+	int idx = m_MortarRockets.Find(hOwner);
+	if (idx == m_MortarRockets.InvalidIndex())
+	{
+		// Create a new entry
+		MortarRocketList_t rocketList;
+		idx = m_MortarRockets.Insert(hOwner, rocketList);
+	}
+
+	// Add the rocket to the list
+	if (idx != m_MortarRockets.InvalidIndex())
+	{
+		m_MortarRockets[idx].m_vecRockets.AddToTail(pRocket);
+	}
+}
+
+
+
+//-----------------------------------------------------------------------------
+// Purpose: Redirect all mortar rockets for a specific player
+//-----------------------------------------------------------------------------
+void CTFRocketLauncher::RedirectMortarRockets(CTFPlayer* pOwner) {
+	if (!pOwner)
+		return;
+
+	int idx = m_MortarRockets.Find(pOwner);
+	if (idx == m_MortarRockets.InvalidIndex() || m_MortarRockets[idx].m_vecRockets.Count() <= 0)
+		return;
+
+	Vector vecEye = pOwner->EyePosition();
+	Vector vecForward, vecRight, vecUp;
+	AngleVectors(pOwner->EyeAngles(), &vecForward, &vecRight, &vecUp);
+
+	trace_t tr;
+	UTIL_TraceLine(vecEye, vecEye + vecForward * MAX_TRACE_LENGTH, MASK_SOLID, pOwner, COLLISION_GROUP_NONE, &tr);
+
+	float flVel = 1100.0f;
+	CUtlVector<CHandle<CBaseEntity>>& rocketList = m_MortarRockets[idx].m_vecRockets;
+
+	FOR_EACH_VEC_BACK(rocketList, i)
+	{
+		CBaseEntity* pRocket = rocketList[i].Get();
+		// Remove targets that have disappeared
+		if (!pRocket || pRocket->GetOwnerEntity() != pOwner)
+		{
+			rocketList.Remove(i);
+			continue;
+		}
+
+		// Give the rocket a new target
+		Vector vecDir = pRocket->WorldSpaceCenter() - tr.endpos;
+		VectorNormalize(vecDir);
+		Vector vecVel = pRocket->GetAbsVelocity();
+		vecVel = -flVel * vecDir;
+		pRocket->SetAbsVelocity(vecVel);
+
+		QAngle newAngles;
+		VectorAngles(-vecDir, newAngles);
+		pRocket->SetAbsAngles(newAngles);
+
+		rocketList.Remove(i);
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Update mortar rockets for all players
+//-----------------------------------------------------------------------------
+void CTFRocketLauncher::UpdateMortarRockets()
+{
+	FOR_EACH_MAP(m_MortarRockets, i)
+	{
+		CTFPlayer* pPlayer = m_MortarRockets.Key(i).Get();
+		if (pPlayer && (pPlayer->m_nButtons & IN_ATTACK2))
+		{
+			RedirectMortarRockets(pPlayer);
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Remove all mortar rockets for a player, or all players if NULL
+//-----------------------------------------------------------------------------
+void CTFRocketLauncher::PurgeMortarRockets(CTFPlayer* pOwner)
+{
+	if (pOwner)
+	{
+		m_MortarRockets.Remove(pOwner);
+	}
+	else
+	{
+		m_MortarRockets.Purge();
+	}
+}
+#endif
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -576,28 +744,28 @@ int CTFRocketLauncher_AirStrike::GetCount( void )
 //	
 //}
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
-CBaseEntity *CTFRocketLauncher_Mortar::FireProjectile( CTFPlayer *pPlayer )
+CBaseEntity* CTFRocketLauncher_Mortar::FireProjectile(CTFPlayer* pPlayer)
 {
 	// Fire the rocket
-	CBaseEntity* pRocket = BaseClass::FireProjectile( pPlayer );
+	CBaseEntity* pRocket = BaseClass::FireProjectile(pPlayer);
 	// Add it to my list
 #ifdef GAME_DLL
-	m_vecRockets.AddToTail( pRocket );
+	m_vecRockets.AddToTail(pRocket);
 #endif
 
 	return pRocket;
 }
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
-void CTFRocketLauncher_Mortar::SecondaryAttack( void )
+void CTFRocketLauncher_Mortar::SecondaryAttack(void)
 {
 	RedirectRockets();
 }
 //-----------------------------------------------------------------------------
-void CTFRocketLauncher_Mortar::ItemPostFrame( void )
+void CTFRocketLauncher_Mortar::ItemPostFrame(void)
 {
 #ifdef GAME_DLL
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
-	if ( pOwner && pOwner->m_nButtons & IN_ATTACK2 )
+	CBasePlayer* pOwner = ToBasePlayer(GetOwner());
+	if (pOwner && pOwner->m_nButtons & IN_ATTACK2)
 	{
 		// If allowed
 		RedirectRockets();
@@ -607,11 +775,11 @@ void CTFRocketLauncher_Mortar::ItemPostFrame( void )
 }
 
 //-----------------------------------------------------------------------------
-void CTFRocketLauncher_Mortar::ItemBusyFrame( void )
+void CTFRocketLauncher_Mortar::ItemBusyFrame(void)
 {
 #ifdef GAME_DLL
-	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
-	if ( pOwner && pOwner->m_nButtons & IN_ATTACK2 )
+	CBasePlayer* pOwner = ToBasePlayer(GetOwner());
+	if (pOwner && pOwner->m_nButtons & IN_ATTACK2)
 	{
 		// If allowed
 		RedirectRockets();
@@ -622,47 +790,47 @@ void CTFRocketLauncher_Mortar::ItemBusyFrame( void )
 
 
 //-----------------------------------------------------------------------------
-void CTFRocketLauncher_Mortar::RedirectRockets( void )
+void CTFRocketLauncher_Mortar::RedirectRockets(void)
 {
 #ifdef GAME_DLL
-	if ( m_vecRockets.Count() <= 0 )
+	if (m_vecRockets.Count() <= 0)
 		return;
 
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
-	if ( !pOwner )
+	CTFPlayer* pOwner = ToTFPlayer(GetOwnerEntity());
+	if (!pOwner)
 		return;
 
 	Vector vecEye = pOwner->EyePosition();
 	Vector vecForward, vecRight, vecUp;
-	AngleVectors( pOwner->EyeAngles(), &vecForward, &vecRight, &vecUp );
+	AngleVectors(pOwner->EyeAngles(), &vecForward, &vecRight, &vecUp);
 
 	trace_t tr;
-	UTIL_TraceLine( vecEye, vecEye + vecForward * MAX_TRACE_LENGTH, MASK_SOLID, pOwner, COLLISION_GROUP_NONE, &tr );
+	UTIL_TraceLine(vecEye, vecEye + vecForward * MAX_TRACE_LENGTH, MASK_SOLID, pOwner, COLLISION_GROUP_NONE, &tr);
 	float flVel = 1100.0f;
 
-	FOR_EACH_VEC_BACK( m_vecRockets, i )
+	FOR_EACH_VEC_BACK(m_vecRockets, i)
 	{
 		CBaseEntity* pRocket = m_vecRockets[i].Get();
 		// Remove targets that have disappeared
-		if ( !pRocket || pRocket->GetOwnerEntity() != GetOwnerEntity() )
+		if (!pRocket || pRocket->GetOwnerEntity() != GetOwnerEntity())
 		{
-			m_vecRockets.Remove( i );
+			m_vecRockets.Remove(i);
 			continue;
 		}
 
 		// Give the rocket a new target
 		Vector vecDir = pRocket->WorldSpaceCenter() - tr.endpos;
-		VectorNormalize( vecDir );
+		VectorNormalize(vecDir);
 
 		Vector vecVel = pRocket->GetAbsVelocity();
 		vecVel = -flVel * vecDir;
-		pRocket->SetAbsVelocity( vecVel );
+		pRocket->SetAbsVelocity(vecVel);
 
 		QAngle newAngles;
-		VectorAngles( -vecDir, newAngles );
-		pRocket->SetAbsAngles( newAngles );
+		VectorAngles(-vecDir, newAngles);
+		pRocket->SetAbsAngles(newAngles);
 
-		m_vecRockets.Remove( i );
+		m_vecRockets.Remove(i);
 	}
 #endif
 }

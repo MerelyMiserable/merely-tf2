@@ -16,6 +16,14 @@
 #define CWeaponMedigun C_WeaponMedigun
 #define CTFMedigunShield C_TFMedigunShield
 #endif
+#include <beam_shared.h>
+
+#define TF_PHYSGUN_MAX_DISTANCE 4096.0f
+#define TF_PHYSGUN_MIN_DISTANCE 50.0f
+#define TF_PHYSGUN_MODEL "models/weapons/w_physics.mdl"
+#define TF_PHYSGUN_VIEWMODEL "models/weapons/v_superphyscannon.mdl"
+#define TF_PHYSGUN_BEAM_SPRITE "materials/sprites/physbeam.vmt"
+#define TF_PHYSGUN_HALO_SPRITE "materials/sprites/halo01.vmt"
 
 class CTFMedigunShield;
 class CTFReviveMarker;
@@ -155,6 +163,38 @@ private:
 	void					CheckAchievementsOnHealTarget( void );
 	void					StartHealingTarget( CBaseEntity *pTarget );
 	void					StopHealingOwner( void );
+	bool m_bHasPhysGunAttribute;
+	bool m_bPhysGunActive;
+	EHANDLE m_hPhysGunAttachedObject;
+	float m_flPhysGunCurrentDistance;
+
+	void InitPhysGunVars();
+	void CheckPhysGunAttribute();
+	void UpdatePhysGunState();
+	void ReleaseCapturedPlayer();
+	void StopPhysGunEffects();
+	void PlayPhysGunEffects();
+	void DoPhysGunRotation(float mousex, float mousey);
+	void AdjustPhysGunDistance(float amount);
+
+#ifndef CLIENT_DLL
+	void CreatePhysGunBeam();
+	void DestroyPhysGunBeam();
+	void UpdateCapturedPlayerPosition();
+	bool CapturePlayerAtCrosshair();
+#endif
+
+#ifdef CLIENT_DLL
+	void DrawPhysGunEffects();
+#endif
+
+
+#ifndef CLIENT_DLL
+	EHANDLE m_hPhysGunCapturedPlayer;
+	Vector m_vPhysGunCapturedOffset[3];
+	float m_vPhysGunCapturedAngles[3];
+	CBeam* m_pPhysGunBeam;
+#endif
 
 #ifdef CLIENT_DLL
 	const char				*GetHealSound() const;

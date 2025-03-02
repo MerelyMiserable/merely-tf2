@@ -23,6 +23,7 @@
 #include "tf_hud_mediccallers.h"
 #include "c_tf_playerresource.h"
 #include "prediction.h"
+#include <iviewrender_beams.h>
 #else
 #include "ndebugoverlay.h"
 #include "tf_player.h"
@@ -225,6 +226,39 @@ CWeaponMedigun::CWeaponMedigun( void )
 
 	SetPredictionEligible( true );
 }
+
+void CWeaponMedigun::InitPhysGunVars()
+{
+	m_bPhysGunActive = false;
+	m_hPhysGunAttachedObject = NULL;
+	m_flPhysGunCurrentDistance = 250.0f;
+#ifndef CLIENT_DLL
+	m_hPhysGunCapturedPlayer = NULL;
+	memset(m_vPhysGunCapturedOffset, 0, sizeof(m_vPhysGunCapturedOffset));
+	memset(m_vPhysGunCapturedAngles, 0, sizeof(m_vPhysGunCapturedAngles));
+	m_pPhysGunBeam = NULL;
+#endif
+}
+
+void CWeaponMedigun::CheckPhysGunAttribute()
+{
+	if(!this){
+		return;
+	}
+
+	int isPhysGun = 0;
+	CALL_ATTRIB_HOOK_INT_ON_OTHER(this, isPhysGun, acts_like_physgun);
+	if (isPhysGun == 1)
+	{
+		m_bHasPhysGunAttribute = true;
+		//DevMsg("Medigun has physgun attribute\n");
+	}
+	else {
+		m_bHasPhysGunAttribute = false;
+		//DevMsg("Medigun does not have physgun attribute\n");
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // Purpose: 
@@ -1514,9 +1548,56 @@ void CWeaponMedigun::SubtractChargeAndUpdateDeployState( float flSubtractAmount,
 //-----------------------------------------------------------------------------
 void CWeaponMedigun::ItemPostFrame( void )
 {
-	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
-	if ( !pOwner )
+	CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+	if (!pOwner)
 		return;
+
+	// Check if we have the physgun attribute
+	CheckPhysGunAttribute();
+
+	// If we're in physgun mode and active
+	if (m_bHasPhysGunAttribute && m_bPhysGunActive)
+	{
+		// Check if we should release the player
+		if (!(pOwner->m_nButtons & IN_ATTACK))
+		{
+			ReleaseCapturedPlayer();
+			StopPhysGunEffects();
+		}
+		else if (m_hPhysGunAttachedObject)
+		{
+#ifdef CLIENT_DLL
+			// Draw effects
+			DrawPhysGunEffects();
+#else
+			// Handle player movement
+			UpdateCapturedPlayerPosition();
+
+			// Handle player rotation if the reload button is pressed
+			if (pOwner->m_nButtons & IN_RELOAD)
+			{
+				// Get mouse movement 
+				int mousex = pOwner->GetCurrentCommand()->mousedx;
+				int mousey = pOwner->GetCurrentCommand()->mousedy;
+
+				DoPhysGunRotation(mousex, mousey);
+			}
+
+			// Handle distance adjustment
+			if (pOwner->m_nButtons & IN_ATTACK2)
+			{
+				AdjustPhysGunDistance(5.0f);
+			}
+			else if (pOwner->m_nButtons & IN_ATTACK3)
+			{
+				AdjustPhysGunDistance(-5.0f);
+			}
+
+			// Play beam effects
+			PlayPhysGunEffects();
+#endif
+		}
+	}
 
 	// If we're lowered, we're not allowed to fire
 	if ( CanAttack() == false )
@@ -1612,6 +1693,290 @@ void CWeaponMedigun::ItemPostFrame( void )
 	}
 
 	WeaponIdle();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Release any captured player
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::ReleaseCapturedPlayer(void)
+{
+	if (!m_bPhysGunActive)
+		return;
+
+	m_bPhysGunActive = false;
+
+#ifndef CLIENT_DLL
+	if (m_hPhysGunCapturedPlayer.Get())
+	{
+		CBaseEntity* pTarget = m_hPhysGunCapturedPlayer.Get();
+
+		// Re-enable movement
+		pTarget->SetMoveType(MOVETYPE_WALK);
+
+		// Add some velocity in the direction we're looking
+		CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+		if (pOwner)
+		{
+			Vector vecForward;
+			pOwner->EyeVectors(&vecForward);
+
+			Vector vecVelocity = pTarget->GetAbsVelocity();
+			vecVelocity += vecForward * 300.0f;
+			pTarget->SetAbsVelocity(vecVelocity);
+		}
+
+		m_hPhysGunCapturedPlayer = NULL;
+		DestroyPhysGunBeam();
+	}
+#endif
+
+	m_hPhysGunAttachedObject = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Adjust distance of captured player
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::AdjustPhysGunDistance(float amount)
+{
+	m_flPhysGunCurrentDistance += amount;
+
+	// Clamp distance
+	if (m_flPhysGunCurrentDistance < TF_PHYSGUN_MIN_DISTANCE)
+		m_flPhysGunCurrentDistance = TF_PHYSGUN_MIN_DISTANCE;
+	if (m_flPhysGunCurrentDistance > TF_PHYSGUN_MAX_DISTANCE)
+		m_flPhysGunCurrentDistance = TF_PHYSGUN_MAX_DISTANCE;
+}
+
+#ifndef CLIENT_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose: Try to capture a player at the crosshair
+//-----------------------------------------------------------------------------
+bool CWeaponMedigun::CapturePlayerAtCrosshair(void)
+{
+	CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+	if (!pOwner)
+		return false;
+
+	Vector vecSrc = pOwner->Weapon_ShootPosition();
+	Vector vecDir;
+	pOwner->EyeVectors(&vecDir);
+	trace_t tr;
+	UTIL_TraceLine(vecSrc, vecSrc + vecDir * TF_PHYSGUN_MAX_DISTANCE, MASK_SHOT, pOwner, COLLISION_GROUP_NONE, &tr);
+
+	if (tr.DidHit() && tr.m_pEnt && tr.m_pEnt->IsPlayer())
+	{
+		CTFPlayer* pTarget = dynamic_cast<CTFPlayer*>(tr.m_pEnt);
+		if (pTarget && pTarget != pOwner && pTarget->IsAlive())
+		{
+			m_hPhysGunCapturedPlayer = pTarget;
+			m_hPhysGunAttachedObject = pTarget;
+			m_bPhysGunActive = true;
+
+			Vector vecCenter = pTarget->WorldSpaceCenter();
+			Vector vecHitPos = tr.endpos;
+			VectorSubtract(vecHitPos, pTarget->GetAbsOrigin(), *(Vector*)m_vPhysGunCapturedOffset);
+
+			QAngle angles = pTarget->GetAbsAngles();
+			m_vPhysGunCapturedAngles[0] = angles.x;
+			m_vPhysGunCapturedAngles[1] = angles.y;
+			m_vPhysGunCapturedAngles[2] = angles.z;
+
+			m_flPhysGunCurrentDistance = tr.fraction * TF_PHYSGUN_MAX_DISTANCE;
+			if (m_flPhysGunCurrentDistance < TF_PHYSGUN_MIN_DISTANCE)
+				m_flPhysGunCurrentDistance = TF_PHYSGUN_MIN_DISTANCE;
+
+			pTarget->SetMoveType(MOVETYPE_NONE);
+			CreatePhysGunBeam();
+
+			// Still play medigun animation
+			SendWeaponAnim(ACT_VM_PRIMARYATTACK);
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Create the beam effect
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::CreatePhysGunBeam(void)
+{
+	CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+	if (!pOwner || !m_hPhysGunCapturedPlayer.Get())
+		return;
+
+	DestroyPhysGunBeam();
+
+	// Create the beam
+	m_pPhysGunBeam = (CBeam*)CreateEntityByName("beam");
+	if (m_pPhysGunBeam)
+	{
+		Vector vecSrc = pOwner->Weapon_ShootPosition();
+		Vector vecTarget = m_hPhysGunCapturedPlayer.Get()->WorldSpaceCenter();
+
+		m_pPhysGunBeam->PointsInit(vecSrc, vecTarget);
+		m_pPhysGunBeam->SetBrightness(255);
+		m_pPhysGunBeam->SetColor(255, 217, 38); // Use medigun color - yellow for stock
+		m_pPhysGunBeam->SetWidth(6.0f);
+		m_pPhysGunBeam->SetEndWidth(6.0f);
+		m_pPhysGunBeam->SetFadeLength(0);
+		m_pPhysGunBeam->SetNoise(0);
+		m_pPhysGunBeam->SetBeamFlags(FBEAM_SHADEIN);
+		m_pPhysGunBeam->SetModelName(MAKE_STRING(TF_PHYSGUN_BEAM_SPRITE));
+		m_pPhysGunBeam->SetHaloTexture(modelinfo->GetModelIndex(TF_PHYSGUN_HALO_SPRITE));
+		m_pPhysGunBeam->SetHaloScale(3.0f);
+		m_pPhysGunBeam->SetScrollRate(0);
+		m_pPhysGunBeam->SetRenderColor(255, 217, 38, 255);
+
+		m_pPhysGunBeam->RelinkBeam();
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Destroy the beam effect
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::DestroyPhysGunBeam(void)
+{
+	if (m_pPhysGunBeam)
+	{
+		UTIL_Remove(m_pPhysGunBeam);
+		m_pPhysGunBeam = NULL;
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Update the position of the captured player
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::UpdateCapturedPlayerPosition(void)
+{
+	CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+	if (!pOwner || !m_hPhysGunCapturedPlayer.Get())
+		return;
+
+	// Calculate new position
+	Vector vecSrc = pOwner->Weapon_ShootPosition();
+	Vector vecDir;
+	pOwner->EyeVectors(&vecDir);
+
+	// Position is eye pos + direction * distance
+	Vector vecTarget = vecSrc + vecDir * m_flPhysGunCurrentDistance;
+
+	// Move player to target position
+	m_hPhysGunCapturedPlayer.Get()->SetAbsOrigin(vecTarget - *(Vector*)m_vPhysGunCapturedOffset);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Rotate captured player
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::DoPhysGunRotation(float mousex, float mousey)
+{
+	if (!m_bPhysGunActive || !m_hPhysGunCapturedPlayer.Get())
+		return;
+
+	CBaseEntity* pTarget = m_hPhysGunCapturedPlayer.Get();
+
+	QAngle angles = pTarget->GetAbsAngles();
+
+	// Apply rotation based on mouse movement
+	angles.y += mousex * 0.5f;
+	angles.x -= mousey * 0.5f;
+
+	// Keep pitch limited
+	if (angles.x > 89)
+		angles.x = 89;
+	if (angles.x < -89)
+		angles.x = -89;
+
+	pTarget->SetAbsAngles(angles);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Play effects (beam)
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::PlayPhysGunEffects(void)
+{
+	if (!m_bPhysGunActive || !m_hPhysGunCapturedPlayer.Get())
+		return;
+
+	// Update beam end position
+	CBaseEntity* pTarget = m_hPhysGunCapturedPlayer.Get();
+	if (pTarget && m_pPhysGunBeam)
+	{
+		CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+		if (!pOwner)
+			return;
+
+		Vector vecSrc = pOwner->Weapon_ShootPosition();
+
+		// Move to player center plus offset
+		Vector vecTarget = pTarget->WorldSpaceCenter() + *(Vector*)m_vPhysGunCapturedOffset;
+
+		// Update beam
+		m_pPhysGunBeam->SetStartPos(vecSrc);
+		m_pPhysGunBeam->SetEndPos(vecTarget);
+		m_pPhysGunBeam->RelinkBeam();
+	}
+}
+
+#else // CLIENT_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose: Draw the beam effect
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::DrawPhysGunEffects(void)
+{
+	// Draw beam between weapon and captured player
+	C_TFPlayer* pOwner = ToTFPlayer(GetOwner());
+	if (!pOwner || !m_hPhysGunAttachedObject)
+		return;
+
+	// Get positions
+	Vector vecSrc = pOwner->Weapon_ShootPosition();
+	C_BaseEntity* pEntity = m_hPhysGunAttachedObject.Get();
+	if (!pEntity)
+		return;
+
+	Vector vecTarget = pEntity->WorldSpaceCenter();
+
+	// Draw beam
+	BeamInfo_t beamInfo;
+	beamInfo.m_nType = TE_BEAMPOINTS;
+	beamInfo.m_pszModelName = TF_PHYSGUN_BEAM_SPRITE;
+	beamInfo.m_nHaloIndex = modelinfo->GetModelIndex(TF_PHYSGUN_HALO_SPRITE);
+	beamInfo.m_flHaloScale = 3.0f;
+	beamInfo.m_flLife = 0.1f;
+	beamInfo.m_flWidth = 6.0f;
+	beamInfo.m_flEndWidth = 6.0f;
+	beamInfo.m_flFadeLength = 0.0f;
+	beamInfo.m_flAmplitude = 0;
+	beamInfo.m_flBrightness = 255.0f;
+	beamInfo.m_flSpeed = 0.0f;
+	beamInfo.m_nStartFrame = 0.0;
+	beamInfo.m_flFrameRate = 1.0f;
+	beamInfo.m_flRed = 255.0f;
+	beamInfo.m_flGreen = 217.0f;
+	beamInfo.m_flBlue = 38.0f;
+	beamInfo.m_nSegments = 8;
+	beamInfo.m_bRenderable = true;
+	beamInfo.m_vecStart = vecSrc;
+	beamInfo.m_vecEnd = vecTarget;
+
+	beams->CreateBeamPoints(beamInfo);
+}
+
+#endif // CLIENT_DLL
+
+//-----------------------------------------------------------------------------
+// Purpose: Stop effects
+//-----------------------------------------------------------------------------
+void CWeaponMedigun::StopPhysGunEffects(void)
+{
+#ifndef CLIENT_DLL
+	DestroyPhysGunBeam();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1735,6 +2100,35 @@ void CWeaponMedigun::RemoveHealingTarget( bool bStopHealingSelf )
 //-----------------------------------------------------------------------------
 void CWeaponMedigun::PrimaryAttack( void )
 {
+	CheckPhysGunAttribute();
+
+	// If we're in physgun mode, handle that instead
+	if (m_bHasPhysGunAttribute)
+	{
+		DevMsg("Physgun mode\n");
+
+		CTFPlayer* pOwner = ToTFPlayer(GetOwner());
+		if (!pOwner)
+			return;
+
+#ifndef CLIENT_DLL
+		// If we already have a captured player, keep handling that in ItemPostFrame
+		if (m_bPhysGunActive && m_hPhysGunAttachedObject)
+			return;
+
+		// Otherwise try to capture a player
+		if (CapturePlayerAtCrosshair())
+		{
+			// Success!
+			return;
+		}
+#endif
+
+		// If we didn't capture anyone, fall back to normal medigun behavior
+	}
+
+
+
 	CTFPlayer *pOwner = ToTFPlayer( GetOwnerEntity() );
 	if ( !pOwner )
 		return;

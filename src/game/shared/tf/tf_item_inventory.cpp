@@ -236,7 +236,7 @@ void CTFInventoryManager::GenerateBaseItems( void )
 {
 	// Purge our lists and make new
 	m_pBaseLoadoutItems.PurgeAndDeleteElements();
-	m_pSoloLoadoutItems.PurgeAndDeleteElements();
+	m_pCustomLoadoutItems.PurgeAndDeleteElements();
 	
 	// Load a base top level invalid item
 	{
@@ -252,19 +252,19 @@ void CTFInventoryManager::GenerateBaseItems( void )
 		pItem->Init( mapItems[it]->GetDefinitionIndex(), AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false );
 		m_pBaseLoadoutItems.AddToTail( pItem );
 	}
-	const CEconItemSchema::BaseItemDefinitionMap_t& mapItemsSolo = GetItemSchema()->GetCustomItemDefinitionMap();
+	const CEconItemSchema::BaseItemDefinitionMap_t& mapItemsCustom = GetItemSchema()->GetCustomItemDefinitionMap();
 	iStart = 0;
-	for (int it = iStart; it != mapItemsSolo.InvalidIndex(); it = mapItemsSolo.NextInorder(it))
+	for (int it = iStart; it != mapItemsCustom.InvalidIndex(); it = mapItemsCustom.NextInorder(it))
 	{
 		CEconItemView* pItemView = new CEconItemView;
 		CEconItem* pItem = new CEconItem;
-		pItem->m_ulID = mapItemsSolo[it]->GetDefinitionIndex();
+		pItem->m_ulID = mapItemsCustom[it]->GetDefinitionIndex();
 		pItem->m_unAccountID = 0;
-		pItem->m_unDefIndex = mapItemsSolo[it]->GetDefinitionIndex();
-		pItemView->Init(mapItemsSolo[it]->GetDefinitionIndex(), AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false);
-		pItemView->SetItemID(mapItemsSolo[it]->GetDefinitionIndex());
+		pItem->m_unDefIndex = mapItemsCustom[it]->GetDefinitionIndex();
+		pItemView->Init(mapItemsCustom[it]->GetDefinitionIndex(), AE_USE_SCRIPT_VALUE, AE_USE_SCRIPT_VALUE, false);
+		pItemView->SetItemID(mapItemsCustom[it]->GetDefinitionIndex());
 		pItemView->SetNonSOEconItem(pItem);
-		m_pSoloLoadoutItems.AddToTail(pItemView);
+		m_pCustomLoadoutItems.AddToTail(pItemView);
 	}
 }
 
@@ -357,10 +357,10 @@ int	CTFInventoryManager::GetAllUsableItemsForSlot( int iClass, int iSlot, CUtlVe
 
 		pList->AddToTail( m_LocalInventory.GetItem(i) );
 	}
-	iCount = m_pSoloLoadoutItems.Count();
+	iCount = m_pCustomLoadoutItems.Count();
 	for (int i = 0; i < iCount; i++)
 	{
-		CEconItemView* pItem = m_pSoloLoadoutItems[i];
+		CEconItemView* pItem = m_pCustomLoadoutItems[i];
 		CTFItemDefinition* pItemData = pItem->GetStaticData();
 
 		if (!bIsAccountIndex && !pItemData->CanBeUsedByClass(iClass))
