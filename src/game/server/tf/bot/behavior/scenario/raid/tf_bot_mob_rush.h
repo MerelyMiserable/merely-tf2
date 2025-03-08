@@ -10,7 +10,6 @@
 
 #include "Path/NextBotChasePath.h"
 
-
 //-----------------------------------------------------------------------------
 class CTFBotMobRush : public Action< CTFBot >
 {

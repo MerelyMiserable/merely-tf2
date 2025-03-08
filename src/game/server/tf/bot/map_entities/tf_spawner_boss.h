@@ -6,8 +6,6 @@
 #ifndef TF_SPAWNER_BOSS_H
 #define TF_SPAWNER_BOSS_H
 
-#ifdef OBSOLETE_USE_BOSS_ALPHA
-
 #ifdef TF_RAID_MODE
 
 class CBotNPC;
@@ -48,7 +46,5 @@ private:
 };
 
 #endif // TF_RAID_MODE
-
-#endif // OBSOLETE_USE_BOSS_ALPHA
 
 #endif // TF_SPAWNER_BOSS_H

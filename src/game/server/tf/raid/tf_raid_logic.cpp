@@ -20,13 +20,14 @@
 
 #include "func_respawnroom.h"
 #include "pathtrack.h"
+#include <bot/tf_bot_manager.h>
 
 extern ConVar mp_teams_unbalance_limit;
 extern ConVar mp_autoteambalance;
 extern ConVar sv_alltalk;
 extern ConVar mp_timelimit;
 
-CRaidLogic *g_pRaidLogic = NULL;
+CRaidLogic* g_pRaidLogic = NULL;
 
 ConVar tf_debug_sniper_spots( "tf_debug_sniper_spots", "0"/*, FCVAR_CHEAT*/ );
 
@@ -95,6 +96,73 @@ extern ConVar tf_populator_active_buffer_range;
 
 
 extern bool IsSpaceToSpawnHere( const Vector &where );
+
+CTFBot* CRaidLogic::SpawnRedTFBot(int iClassIndex, const Vector& position)
+{
+
+	// Define an array of bot names
+	const char* botNames[] = {
+		"Alpha", "Bravo", "Charlie", "Delta", "Echo",
+		"Foxtrot", "Golf", "Hotel", "India", "Juliet"
+	};
+
+	// Get the total number of bot names
+	const int botNameCount = sizeof(botNames) / sizeof(botNames[0]);
+
+	// Static counter to track bot creation
+	static int botIndex = 0;
+
+	// Select a name from the list (cycling through if needed)
+	const char* selectedName = botNames[botIndex % botNameCount];
+
+	// Increment index for the next bot
+	botIndex++;
+
+	// Assign the name
+	char name[32];
+	V_snprintf(name, sizeof(name), "%s", selectedName);
+
+
+	// Create the bot
+	CTFBot* pBot = NextBotCreatePlayerBot< CTFBot >(name);
+	if (!pBot)
+		return NULL;
+
+	// Set team to red
+	pBot->HandleCommand_JoinTeam("red");
+
+	// Get class name from index
+	const char* pszClassName = GetPlayerClassData(iClassIndex)->m_szClassName;
+
+	// Set the class
+	pBot->HandleCommand_JoinClass(pszClassName);
+
+	pBot->SetAttribute(CTFBot::AGGRESSIVE);
+
+	pBot->GetPlayerClass()->SetCustomModel(g_szBotModels[iClassIndex], USE_CLASS_ANIMATIONS);
+
+	pBot->UpdateModel();
+
+	pBot->SetBloodColor(DONT_BLEED);
+
+	// Teleport to the specified position
+	pBot->Teleport(&position, NULL, NULL);
+
+	// Update bot quota management
+	TheTFBots().OnForceAddedBots(1);
+
+	return pBot;
+}
+
+CTFBot* CRaidLogic::SpawnRedTFBot(const char* whichClass, const Vector& position)
+{
+	// Get class index from string
+	int iClassIndex = GetClassIndexFromString(whichClass);
+
+	// Call the int-based version
+	return SpawnRedTFBot(iClassIndex, position);
+}
+
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -230,16 +298,19 @@ void CRaidLogic::Reset( void )
 }
 
 
-#if 0
 //--------------------------------------------------------------------------------------------------------
-bool SpawnWanderer( const Vector &spot )
+bool CRaidLogic::SpawnWanderer( const Vector &spot )
 {
 	if ( !tf_raid_spawn_wanderers.GetBool() )
 		return false;
 
-	return SpawnRedTFBot( TF_CLASS_SCOUT, spot ) ? true : false;
+	if (m_wandererCount >= 5) {
+		return false;
+	}
 
-/*
+	return g_pRaidLogic->SpawnRedTFBot( TF_CLASS_SCOUT, spot ) ? true : false;
+
+
 	CBaseCombatCharacter *minion = static_cast< CBaseCombatCharacter * >( CreateEntityByName( "bot_npc_minion" ) );
 	if ( minion )
 	{
@@ -252,9 +323,8 @@ bool SpawnWanderer( const Vector &spot )
 	}
 
 	return false;
-*/
+
 }
-#endif // 0
 
 
 //-------------------------------------------------------------------------
@@ -334,7 +404,6 @@ void CRaidLogic::OnRoundStart( void )
 		area->SetWanderCount( 0 );
 	}
 
-#if 0
 	//----------------------------------------------
 	// fill the world with wandering defenders
 	int totalPopulation = (int)( tf_raid_wandering_density.GetFloat() * totalSpace + 0.5f );
@@ -345,7 +414,9 @@ void CRaidLogic::OnRoundStart( void )
 	for( int i=0; i<minionAreaVector.Count(); ++i )
 	{
 		static_cast< CTFNavArea * >( minionAreaVector[i] )->AddToWanderCount( 1 );
-//		SpawnWanderer( minionAreaVector[i]->GetRandomPoint() );
+		if (SpawnWanderer(minionAreaVector[i]->GetRandomPoint())) {
+			m_wandererCount += 1;
+		}
 	}
 
 	DevMsg( "RAID: Total minion population = %d\n", minionAreaVector.Count() );
@@ -361,7 +432,7 @@ void CRaidLogic::OnRoundStart( void )
 
 	for( int i=0; i<m_actualSentrySpotVector.Count(); ++i )
 	{
-		SpawnSentry( m_actualSentrySpotVector[i]->GetCenter() );
+		//SpawnSentry( m_actualSentrySpotVector[i]->GetCenter() );
 	}
 
 	DevMsg( "RAID: Total sentry population = %d\n", m_actualSentrySpotVector.Count() );
@@ -407,7 +478,6 @@ void CRaidLogic::OnRoundStart( void )
 
 		DevMsg( "RAID: Total defender population = %d\n", defenderAreaVector.Count() );
 	}
-#endif
 
 
 	// collect all capture point gates
@@ -467,7 +537,7 @@ int CompareIncursionDistances( CTFNavArea * const *area1, CTFNavArea * const *ar
 }
 
 
-#if 0
+
 //--------------------------------------------------------------------------------------------------------
 class CPopulator : public ISearchSurroundingAreasFunctor
 {
@@ -561,8 +631,9 @@ public:
 		while( area->GetWanderCount() > 0 && --maxSpawnCount && m_spaceLeft )
 		{
 			// attempt to spawn a wanderer here
-			if ( SpawnWanderer( area->GetRandomPoint() + Vector( 0, 0, StepHeight ) ) )
+			if ( g_pRaidLogic->SpawnWanderer( area->GetRandomPoint() + Vector( 0, 0, StepHeight ) ) )
 			{
+				
 				area->SetWanderCount( area->GetWanderCount() - 1 );
 				--m_spaceLeft;
 			}
@@ -625,7 +696,6 @@ public:
 	CUtlVector< CTFNavArea * > m_hiddenAreaAheadVector;
 	CUtlVector< CTFNavArea * > m_hiddenAreaAheadHighVector;
 };
-#endif // 0
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -735,7 +805,6 @@ CTFNavArea *CRaidLogic::FindSpawnAreaBehind( void )
 }
 
 
-#if 0
 //--------------------------------------------------------------------------------------------------------
 bool CRaidLogic::SpawnSquad( CTFNavArea *spawnArea )
 {
@@ -788,13 +857,14 @@ bool CRaidLogic::SpawnSquad( CTFNavArea *spawnArea )
 	{
 		int which = squadClasses[ i ];
 
-		bot = SpawnRedTFBot( which, spawnArea->GetCenter() );
+		bot = SpawnRedTFBot(which, spawnArea->GetCenter());
 		if ( !bot )
 			return false;
 
 		bot->JoinSquad( squad );
 
 		DevMsg( "RAID: %3.2f: Squad member %s(%d)\n", gpGlobals->curtime, bot->GetPlayerName(), bot->entindex() );
+		
 	}
 
 	IGameEvent* event = gameeventmanager->CreateEvent( "raid_spawn_squad" );
@@ -805,7 +875,6 @@ bool CRaidLogic::SpawnSquad( CTFNavArea *spawnArea )
 
 	return true;
 }
-#endif // 0
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -824,7 +893,6 @@ void CRaidLogic::StartMobTimer( float duration )
 }
 
 
-#if 0
 //--------------------------------------------------------------------------------------------------------
 CTFNavArea *CRaidLogic::SelectMobSpawn( CUtlVector< CTFNavArea * > *spawnAreaVector, RelativePositionType where )
 {
@@ -971,7 +1039,6 @@ void CRaidLogic::SpawnMobs( CUtlVector< CTFNavArea * > *spawnAreaVector )
 		}
 	}
 }
-#endif // 0
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -1091,7 +1158,7 @@ CTFNavArea *CRaidLogic::SelectRaidSentryArea( void ) const
 }
 
 
-#if 0
+
 //--------------------------------------------------------------------------------------------------------
 void CRaidLogic::SpawnEngineers( void )
 {
@@ -1117,7 +1184,7 @@ void CRaidLogic::SpawnEngineers( void )
 		int tryCount;
 		for( tryCount=0; tryCount<maxTries; ++tryCount )
 		{
-			CTFBot *bot = SpawnRedTFBot( TF_CLASS_ENGINEER, sentryArea->GetParent()->GetCenter() + Vector( 0, 0, RandomFloat( 0.0f, 30.0f ) ) );
+			CTFBot* bot = SpawnRedTFBot(TF_CLASS_ENGINEER, sentryArea->GetParent()->GetCenter() + Vector(0, 0, RandomFloat(0.0f, 30.0f)));
 			if ( bot )
 			{
 				// engineer bot will move to the sentry area and build
@@ -1207,7 +1274,8 @@ void CRaidLogic::SpawnSpecials( CUtlVector< CTFNavArea * > *spawnAheadVector, CU
 						// Bot will move to his home area to do his business
 						bot->SetHomeArea( homeArea );
 						return;
-					}					
+					}
+				
 				}
 			}
 		}
@@ -1215,7 +1283,7 @@ void CRaidLogic::SpawnSpecials( CUtlVector< CTFNavArea * > *spawnAheadVector, CU
 		{
 			CTFNavArea *where = spawnAheadVector->Element( RandomInt( 0, spawnAheadVector->Count()-1 ) );
 
-			CTFBot *bot = SpawnRedTFBot( whichClass, where->GetCenter() + Vector( 0, 0, StepHeight ) );
+			CTFBot* bot = SpawnRedTFBot(whichClass, where->GetCenter() + Vector(0, 0, StepHeight));
 			if ( bot )
 			{
 				bot->SetHomeArea( where );
@@ -1228,7 +1296,7 @@ void CRaidLogic::SpawnSpecials( CUtlVector< CTFNavArea * > *spawnAheadVector, CU
 		DevMsg( "RAID: %3.2f: Failed to spawn Special.\n", gpGlobals->curtime );
 	}
 }
-#endif // 0
+
 
 
 //--------------------------------------------------------------------------------------------------------
@@ -1453,6 +1521,17 @@ void CRaidLogic::Update( void )
 			}
 
 			++m_miniBossIndex;
+		}
+	}
+
+	// Kick last round's NPCs
+	CTeam* specTeam = GetGlobalTeam(TEAM_SPECTATOR);
+	for (int i = 0; i < specTeam->GetNumPlayers(); ++i)
+	{
+		CTFBot* bot = ToTFBot(specTeam->GetPlayer(i)); // Use specTeam instead of raidingTeam
+		if (bot && bot->IsBot()) // Ensure it's a bot before kicking
+		{
+			engine->ServerCommand(UTIL_VarArgs("kickid %d\n", bot->GetUserID())); // Use bot directly
 		}
 	}
 
@@ -1742,7 +1821,7 @@ void CRaidLogic::Update( void )
 	if ( tf_raid_spawn_enable.GetBool() == false )
 		return;
 
-#if 0
+
 	// populate wanderers
 	CPopulator populator( maxIncursion, tf_raid_max_wanderers.GetInt() - m_wandererCount );
 	SearchSurroundingAreas( m_farthestAlongRaider->GetLastKnownArea(), populator );
@@ -1777,14 +1856,14 @@ void CRaidLogic::Update( void )
 
 		if ( m_mobArea )
 		{
-			if ( SpawnRedTFBot( m_mobClass, m_mobArea->GetCenter() + Vector( 0, 0, StepHeight ), IS_MOB_RUSHER ) )
+			if (SpawnRedTFBot(m_mobClass, m_mobArea->GetCenter() + Vector(0, 0, StepHeight)))
 			{
 				--m_mobCountRemaining;
 				DevMsg( "RAID: %3.2f: Spawned mob member, %d to go\n", gpGlobals->curtime, m_mobCountRemaining );
 			}
 		}
 	}
-#endif // 0
+
 
 	// block/unblock capture point gate doors
 	// TODO: Do this more efficiently 

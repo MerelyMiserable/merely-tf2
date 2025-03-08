@@ -36,7 +36,6 @@ class CTFTauntProp;
 class CTFDroppedWeapon;
 
 extern const float tf_afterburn_max_duration;
-extern void BotGenerateAndWearItem(CTFPlayer* pBot, const char* itemName);
 
 #define MAX_FIRE_WEAPON_SCENES 4
 
@@ -785,8 +784,6 @@ public:
 	int					ScriptGetBonusPoints() const				{ return m_Shared.GetBonusPoints( 0 ); }
 	void				ScriptResetScores()							{ m_Shared.ResetScores(); }
 	bool				ScriptIsParachuteEquipped()					{ return m_Shared.IsParachuteEquipped(); }
-
-	void				ScriptGenerateAndWearItem(const char* pszItemName) { if (pszItemName) BotGenerateAndWearItem(this, pszItemName); }
 
 	int					ScriptGetPlayerClass()
 	{

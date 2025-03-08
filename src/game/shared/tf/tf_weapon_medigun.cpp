@@ -251,11 +251,11 @@ void CWeaponMedigun::CheckPhysGunAttribute()
 	if (isPhysGun == 1)
 	{
 		m_bHasPhysGunAttribute = true;
-		//DevMsg("Medigun has physgun attribute\n");
+		DevMsg("Medigun has physgun attribute\n");
 	}
 	else {
 		m_bHasPhysGunAttribute = false;
-		//DevMsg("Medigun does not have physgun attribute\n");
+		DevMsg("Medigun does not have physgun attribute\n");
 	}
 }
 

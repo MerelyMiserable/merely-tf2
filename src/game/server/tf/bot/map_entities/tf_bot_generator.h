@@ -3,6 +3,8 @@
 // Entity to spawn a collection of TFBots
 // Michael Booth, September 2009
 
+#include "tf/bot/tf_bot.h"
+
 #ifndef TF_BOT_GENERATOR_H
 #define TF_BOT_GENERATOR_H
 
@@ -33,7 +35,7 @@ public:
 	void InputRemoveBots( inputdata_t &inputdata );
 
 	// Output
-	void OnBotKilled( CTFBot *pBot );
+	void OnBotKilled( CTFBot* pBot );
 
 private:
 	bool m_bBotChoosesClass;

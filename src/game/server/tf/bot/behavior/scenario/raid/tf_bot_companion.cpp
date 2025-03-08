@@ -24,7 +24,6 @@ ConVar tf_raid_companion_allow_bot_leader( "tf_raid_companion_allow_bot_leader",
 
 extern ConVar tf_bot_path_lookahead_range;
 
-
 //---------------------------------------------------------------------------------------------
 ActionResult< CTFBot >	CTFBotCompanion::OnStart( CTFBot *me, Action< CTFBot > *priorAction )
 {

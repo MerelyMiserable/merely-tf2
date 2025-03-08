@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup >
+  <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{922C6F41-C460-59B1-3A59-D4FA6DDC9C37}</UniqueIdentifier>
     </Filter>
@@ -182,7 +182,7 @@
       <UniqueIdentifier>{308191AE-A754-30DF-D5BD-5928E19D585F}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup >
+  <ItemGroup>
     <Library Include="..\..\lib\public\x64\choreoobjects.lib">
       <Filter>Link Libraries</Filter>
     </Library>
@@ -226,7 +226,7 @@
       <Filter>Link Libraries</Filter>
     </Library>
   </ItemGroup>
-  <ItemGroup >
+  <ItemGroup>
     <ClInclude Include="..\..\public\mathlib\amd3dx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -3009,7 +3009,7 @@
       <Filter>Tools Framework</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup >
+  <ItemGroup>
     <ClCompile Include="generated_proto_mod_tf\tf_gcmessages.pb.cc">
       <Filter>Protobuf Files</Filter>
     </ClCompile>
@@ -5654,8 +5654,10 @@
       <Filter>Tools Framework</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup  />
-  <ItemGroup >
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="..\..\game\shared\base_gcmessages.proto">
       <Filter>Protobuf Files</Filter>
     </CustomBuild>
@@ -5678,7 +5680,7 @@
       <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>
-  <ItemGroup >
+  <ItemGroup>
     <None Include="..\..\game\shared\base_gcmessages_include.vpc">
       <Filter>VPC Scripts</Filter>
     </None>

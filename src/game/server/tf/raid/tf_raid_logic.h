@@ -24,8 +24,12 @@ public:
 	CRaidLogic();
 	virtual ~CRaidLogic();
 
+	CTFBot* SpawnRedTFBot(int iClassIndex, const Vector& position);
+    CTFBot* SpawnRedTFBot(const char* whichClass, const Vector& position);
+
 	virtual void Spawn( void );
 	void Reset( void );
+	bool SpawnWanderer(const Vector& spot);
 	void Update( void );
 
 	virtual void FireGameEvent( IGameEvent *event );
@@ -65,7 +69,6 @@ public:
 
 	CBaseEntity *GetRescueRespawn( void ) const;						// return entity positioned within next valid rescue closet area for to respawn players in
 
-private:
 	bool LoadPopulationFromFile( void );
 
 	int m_priorRaiderAliveCount;
@@ -84,21 +87,22 @@ private:
 	bool Unspawn( CTFPlayer *who );
 	void CullObsoleteEnemies( float minIncursion, float maxIncursion );
 
-//	void SpawnMobs( CUtlVector< CTFNavArea * > *spawnAreaVector );
+	void SpawnMobs( CUtlVector< CTFNavArea * > *spawnAreaVector );
 	CountdownTimer m_mobSpawnTimer;
 	CountdownTimer m_mobLifetimeTimer;
 	CTFNavArea *m_mobArea;
 	int m_mobCountRemaining;
 	int m_mobClass;
 
-//	void SpawnEngineers( void );
+	void SpawnEngineers( void );
 	CountdownTimer m_engineerSpawnTimer;
 
-//	void SpawnSpecials( CUtlVector< CTFNavArea * > *spawnAheadVector, CUtlVector< CTFNavArea * > *spawnAnywhereVector );
+	void SpawnSpecials( CUtlVector< CTFNavArea * > *spawnAheadVector, CUtlVector< CTFNavArea * > *spawnAnywhereVector );
 	CountdownTimer m_specialSpawnTimer;
 
 	CTFNavArea *SelectMobSpawn( CUtlVector< CTFNavArea * > *spawnAreaVector, RelativePositionType where );
-//	bool SpawnSquad( CTFNavArea *spawnArea );
+	//void SpawnMobs(CUtlVector<CTFNavArea*>* spawnAreaVector);
+	bool SpawnSquad( CTFNavArea *spawnArea );
 	void StartMobTimer( float duration );
 
 	bool m_isWaitingForRaidersToLeaveSpawnRoom;

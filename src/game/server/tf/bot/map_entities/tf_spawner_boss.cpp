@@ -5,8 +5,6 @@
 
 #include "cbase.h"
 
-#ifdef OBSOLETE_USE_BOSS_ALPHA
-
 #ifdef TF_RAID_MODE
 
 #include "tf_gamerules.h"
@@ -162,6 +160,4 @@ void CTFSpawnerBoss::SpawnerThink( void )
 }
 
 #endif // TF_RAID_MODE
-
-#endif // #ifdef OBSOLETE_USE_BOSS_ALPHA
 

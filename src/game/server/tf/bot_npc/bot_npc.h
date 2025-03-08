@@ -6,14 +6,13 @@
 #ifndef BOT_NPC_H
 #define BOT_NPC_H
 
-#ifdef OBSOLETE_USE_BOSS_ALPHA
-
 #include "NextBot.h"
 #include "NextBotBehavior.h"
 #include "NextBotGroundLocomotion.h"
 #include "Path/NextBotPathFollow.h"
 #include "bot_npc_body.h"
 #include "bot/map_entities/tf_spawner_boss.h"
+#include <bot/map_entities/tf_spawner_boss.h>
 
 class CTFPlayer;
 class CBotNPC;
@@ -535,7 +534,5 @@ public:
 	CBotNPC *m_me;
 };
 
-
-#endif // #ifdef OBSOLETE_USE_BOSS_ALPHA
 
 #endif // BOT_NPC_H

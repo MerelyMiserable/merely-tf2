@@ -209,7 +209,7 @@ static int g_TauntCamAchievements2[] =
 	0,		// TF_CLASS_PYRO,
 	0,		// TF_CLASS_SPY,
 	0,		// TF_CLASS_ENGINEER,
-
+	0,      // TF_CLASS_GAY,
 	0,		// TF_CLASS_CIVILIAN,
 	0,		// TF_CLASS_COUNT_ALL,
 };
@@ -1283,7 +1283,7 @@ static CViewVectors g_TFViewVectors(
 	Vector( 0, 0, 14 )		//VEC_DEAD_VIEWHEIGHT (m_vDeadViewHeight) dead view height
 );							
 
-Vector g_TFClassViewVectors[11] =
+Vector g_TFClassViewVectors[12] =
 {
 	Vector( 0, 0, 72 ),		// TF_CLASS_UNDEFINED
 
@@ -1296,6 +1296,7 @@ Vector g_TFClassViewVectors[11] =
 	Vector( 0, 0, 68 ),		// TF_CLASS_PYRO,
 	Vector( 0, 0, 75 ),		// TF_CLASS_SPY,
 	Vector( 0, 0, 68 ),		// TF_CLASS_ENGINEER,
+	Vector( 0, 0, 68),		// TF_CLASS_GAY,
 
 	Vector( 0, 0, 65 ),		// TF_CLASS_CIVILIAN,		// TF_LAST_NORMAL_CLASS
 };

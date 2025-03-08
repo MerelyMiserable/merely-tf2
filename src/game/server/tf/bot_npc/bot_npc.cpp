@@ -5,7 +5,6 @@
 
 #include "cbase.h"
 
-#ifdef OBSOLETE_USE_BOSS_ALPHA
 
 #ifdef TF_RAID_MODE
 
@@ -29,6 +28,7 @@
 #include "player_vs_environment/monster_resource.h"
 #include "bot/map_entities/tf_bot_generator.h"
 #include "player_vs_environment/tf_population_manager.h"
+#include <game/server/ientityinfo.h>
 
 //#define USE_BOSS_SENTRY
 
@@ -153,7 +153,7 @@ void CBotNPC::Precache()
 #ifdef USE_BOSS_SENTRY
 	int model = PrecacheModel( "models/bots/boss_sentry/boss_sentry.mdl" );
 #else
-	int model = PrecacheModel( "models/bots/knight/knight.mdl" );
+	int model = PrecacheModel( "models/bots/demo_boss/bot_demo_boss.mdl" );
 #endif
 
 	PrecacheGibsForModel( model );
@@ -281,12 +281,14 @@ void CBotNPC::Spawn( void )
 #ifdef USE_BOSS_SENTRY
 	SetModel( "models/bots/boss_sentry/boss_sentry.mdl" );
 #else
-	SetModel( "models/bots/knight/knight.mdl" );
+	SetModel( "models/bots/demo_boss/bot_demo_boss.mdl" );
 #endif
 
 	InstallArmorParts();
 
-	ModifyMaxHealth( tf_bot_npc_health.GetInt() );
+	SetHealth( tf_bot_npc_health.GetInt() );
+
+	SetModelScale(1.75);
 
 	// show Boss' health meter on HUD
 	if ( g_pMonsterResource )
@@ -318,7 +320,7 @@ void CBotNPC::Spawn( void )
 
 	ChangeTeam( TF_TEAM_RED );
 
-	TFGameRules()->SetActiveBoss( this );
+	TFGameRules()->AddActiveBoss( this );
 }
 
 
@@ -1706,7 +1708,7 @@ ActionResult< CBotNPC >	CBotNPCNukeAttack::Update( CBotNPC *me, float interval )
 					// catch them on fire (unless they are a Pyro)
 					if ( !playerVictim->IsPlayerClass( TF_CLASS_PYRO ) )
 					{
-						playerVictim->m_Shared.Burn( me, tf_bot_npc_nuke_afterburn_time.GetFloat() );
+						playerVictim->m_Shared.SelfBurn( tf_bot_npc_nuke_afterburn_time.GetFloat() );
 					}
 
 					color32 colorHit = { 255, 255, 255, 255 };
@@ -2763,12 +2765,12 @@ ActionResult< CBotNPC >	CBotNPCLaserBlast::Update( CBotNPC *me, float interval )
 
 		if ( target->IsPlayer() && damage > tf_bot_npc_laser_damage_ignite_threshold.GetFloat() )
 		{
-			ToTFPlayer( target )->m_Shared.Burn( me, tf_bot_npc_laser_afterburn_time.GetFloat() );
+			ToTFPlayer( target )->m_Shared.SelfBurn( tf_bot_npc_laser_afterburn_time.GetFloat() );
 		}
 
 		if ( target->IsPlayer() && m_laserTimer.GetElapsedTime() > tf_bot_npc_laser_damage_ignite_time.GetFloat() )
 		{
-			ToTFPlayer( target )->m_Shared.Burn( me, tf_bot_npc_laser_afterburn_time.GetFloat() );
+			ToTFPlayer( target )->m_Shared.SelfBurn( tf_bot_npc_laser_afterburn_time.GetFloat() );
 		}
 
 		// me->EmitSound( "Weapon_Sword.HitFlesh" );
@@ -3600,5 +3602,3 @@ bool CBotNPCVision::IsIgnored( CBaseEntity *subject ) const
 }
 
 #endif // TF_RAID_MODE
-
-#endif // OBSOLETE_USE_BOSS_ALPHA

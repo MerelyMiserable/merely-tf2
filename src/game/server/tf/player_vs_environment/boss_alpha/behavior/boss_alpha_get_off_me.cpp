@@ -14,7 +14,7 @@ ConVar tf_boss_alpha_charge_pushaway_force( "tf_boss_alpha_charge_pushaway_force
 
 
 //---------------------------------------------------------------------------------------------
-void PushawayPlayer( CTFPlayer *victim, const Vector &pushOrigin, float pushForce )
+void CBossAlphaGetOffMe::PushawayPlayer( CTFPlayer *victim, const Vector &pushOrigin, float pushForce )
 {
 	if ( !victim )
 		return;

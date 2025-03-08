@@ -130,7 +130,7 @@ void CBossAlpha::Precache()
 #ifdef USE_BOSS_SENTRY
 	int model = PrecacheModel( "models/bots/boss_sentry/boss_sentry.mdl" );
 #else
-	int model = PrecacheModel( "models/bots/knight/knight.mdl" );
+	int model = PrecacheModel( "models/bots/demo_boss/bot_demo_boss.mdl" );
 #endif
 
 	PrecacheGibsForModel( model );
@@ -176,7 +176,7 @@ void CBossAlpha::Spawn( void )
 #ifdef USE_BOSS_SENTRY
 	SetModel( "models/bots/boss_sentry/boss_sentry.mdl" );
 #else
-	SetModel( "models/bots/knight/knight.mdl" );
+	SetModel( "models/bots/demo_boss/bot_demo_boss.mdl" );
 #endif
 
 	m_conditionFlags = 0;
@@ -219,7 +219,7 @@ void CBossAlpha::Spawn( void )
 
 	ChangeTeam( TF_TEAM_RED );
 
-	TFGameRules()->SetActiveBoss( this );
+	TFGameRules()->AddActiveBoss(this);
 
 	// CollisionProp()->SetSurroundingBoundsType( USE_HITBOXES );
 
@@ -242,7 +242,7 @@ ConVar tf_boss_alpha_dmg_mult_grenade( "tf_boss_alpha_dmg_mult_grenade", "0.3"/*
 ConVar tf_boss_alpha_dmg_mult_rocket( "tf_boss_alpha_dmg_mult_rocket", "0.5"/*, FCVAR_CHEAT*/ );
 
 
-float ModifyBossDamage( const CTakeDamageInfo &info )
+float CBossAlpha::ModifyBossDamage( const CTakeDamageInfo &info )
 {
 	CTFWeaponBase *pWeapon = dynamic_cast< CTFWeaponBase * >( info.GetWeapon() );
 
@@ -392,7 +392,7 @@ bool CBossAlpha::CheckSkillShots( const CTakeDamageInfo &info )
 		return true;
 	}
 
-//	const Vector &hitSpot = info.GetDamagePosition();
+	//const Vector &hitSpot = info.GetDamagePosition();
 
 	CBaseEntity *inflictor = info.GetInflictor();
 	if ( !inflictor )
@@ -402,8 +402,8 @@ bool CBossAlpha::CheckSkillShots( const CTakeDamageInfo &info )
 
 	Vector hitDir = m_lastTraceAttackDir;
 
-/*
-	Vector hitDir = inflictor->GetAbsVelocity();
+
+	/*Vector hitDir = inflictor->GetAbsVelocity();
 	
 	if ( inflictor->IsPlayer() )
 	{
@@ -417,9 +417,10 @@ bool CBossAlpha::CheckSkillShots( const CTakeDamageInfo &info )
 			hitDir = hitSpot - sentry->EyePosition();
 		}
 	}
+	*/
 
 	hitDir.NormalizeInPlace();
-*/
+
 
 	Vector traceFrom = m_lastTraceAttackTrace.startpos - m_lastTraceAttackDir * 10.0f;
 	Vector traceTo = m_lastTraceAttackTrace.endpos + m_lastTraceAttackDir * 100.0f;

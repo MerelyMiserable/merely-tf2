@@ -94,6 +94,8 @@ public:
 	virtual void Precache();
 	virtual void Spawn( void );
 
+	float ModifyBossDamage(const CTakeDamageInfo& info);
+
 	virtual int OnTakeDamage_Alive( const CTakeDamageInfo &info );
 
 	// INextBot

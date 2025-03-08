@@ -12,6 +12,7 @@
 class CBossAlphaGetOffMe : public Action< CBossAlpha >
 {
 public:
+	void PushawayPlayer(CTFPlayer* victim, const Vector& pushOrigin, float pushForce);
 	virtual ActionResult< CBossAlpha >	OnStart( CBossAlpha *me, Action< CBossAlpha > *priorAction );
 	virtual ActionResult< CBossAlpha >	Update( CBossAlpha *me, float interval );
 	virtual void						OnEnd( CBossAlpha *me, Action< CBossAlpha > *nextAction );

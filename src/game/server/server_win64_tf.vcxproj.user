@@ -3,7 +3,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <LocalDebuggerCommand>F:\SteamLibrary\steamapps\common\Source SDK Base 2013 Multiplayer\hl2_win64.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-game "F:\frogfortress2\game\mod_tf" -dev -w 1920 -h 1080 -windowed</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-game "F:\source-sdk-2013\game\mod_tf" -dev -w 1920 -h 1080 -windowed</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>F:\SteamLibrary\steamapps\common\Source SDK Base 2013 Multiplayer</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
 </Project>

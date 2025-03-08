@@ -1,14 +1,4 @@
 // Hint files help the Visual Studio IDE interpret Visual C++ identifiers
 // such as names of functions and macros.
 // For more information see https://go.microsoft.com/fwlink/?linkid=865984
-#define IMPLEMENT_NETWORKCLASS_ALIASED(className, dataTable) IMPLEMENT_CLIENTCLASS( C_##className, dataTable, C##className )
-#define IMPLEMENT_NETWORKCLASS_ALIASED(className, dataTable) IMPLEMENT_SERVERCLASS( C##className, dataTable )
-// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
-// such as names of functions and macros.
-// For more information see https://go.microsoft.com/fwlink/?linkid=865984
-#define IMPLEMENT_NETWORKCLASS_ALIASED(className, dataTable) IMPLEMENT_CLIENTCLASS( C_##className, dataTable, C##className )
-#define IMPLEMENT_NETWORKCLASS_ALIASED(className, dataTable) IMPLEMENT_SERVERCLASS( C##className, dataTable )
-// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
-// such as names of functions and macros.
-// For more information see https://go.microsoft.com/fwlink/?linkid=865984
-#define END_NETWORK_TABLE
+#define BEGIN_DATADESC(className) datamap_t className::m_DataMap = { 0, 0, #className, NULL }; datamap_t *className::GetDataDescMap( void ) { return &m_DataMap; } datamap_t *className::GetBaseMap() { datamap_t *pResult; DataMapAccess((BaseClass *)NULL, &pResult); return pResult; } BEGIN_DATADESC_GUTS( className )

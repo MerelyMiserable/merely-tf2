@@ -17,6 +17,7 @@
 #include "tf_gamerules.h"
 #include "etwprof.h"
 #include "team_control_point_master.h"
+#include "raid/tf_raid_logic.h"
 
 extern ConVar tf_populator_debug;
 extern ConVar tf_populator_active_buffer_range;
@@ -309,7 +310,7 @@ CTFNavArea *CSpawnLocation::SelectSpawnArea( void ) const
 	}
 
 #ifdef TF_RAID_MODE
-	CTFPlayer *farRaider = g_pRaidLogic->GetFarthestAlongRaider();
+	CTFPlayer* farRaider = g_pRaidLogic->GetFarthestAlongRaider();
 
 	if ( !farRaider )
 	{
